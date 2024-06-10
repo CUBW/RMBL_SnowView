@@ -71,9 +71,9 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
 
 ## Iteration 6 Culmination
 
-### Finalize the mode, prepare for submission and presentation
-- Overview final Presentation
-- Write Documentation draft/submission
+### Finalize the model, prepare for submission and presentation
+- Overview final presentation
+- Write documentation draft/submission
 - Finalize code
 - Submit
 
