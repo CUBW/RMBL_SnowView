@@ -36,7 +36,7 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
     4. SVM
 
 - Results of the models
-- Are there any better pre-trained models we should use or should we train our own/
+- Are there any better pre-trained models we should use or should we train our own?
 
 
 
