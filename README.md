@@ -11,7 +11,7 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
 
 ### Aim to gain a better understanding of snow and images of snow
 - Snow cycle near Gothic, CO and different areas
-- Info of the location and surriunding area
+- Info of the location and surrounding area
 - Other sites info
 
 ## Iteration 2 Dataset
