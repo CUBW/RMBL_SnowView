@@ -78,3 +78,6 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
 - Submit
 
 
+# Contributors
+-  [Andrew Fox](https://github.com/apfox500)  
+-  [Joel Carlson](https://github.com/JTxCo)
