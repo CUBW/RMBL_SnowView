@@ -163,3 +163,4 @@ cython_debug/
 
 # VSCode
 .code-workspace
+RMBL_SnowView.code-workspace
