@@ -9,9 +9,9 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
 
 ## Iteration 1 Jun 10
 
-### Aim to gain a better understanding of snow and iamges of snow
+### Aim to gain a better understanding of snow and images of snow
 - Snow cycle near Gothic, CO and different areas
-- Info of the location and surriunding area
+- Info of the location and surrounding area
 - Other sites info
 
 ## Iteration 2 Dataset
@@ -36,7 +36,7 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
     4. SVM
 
 - Results of the models
-- Are there any better pre-trained models we should use or should we train our own/
+- Are there any better pre-trained models we should use or should we train our own?
 
 
 
@@ -71,9 +71,9 @@ This is our project for the summer 2024 intership at RMBL. We are working with d
 
 ## Iteration 6 Culmination
 
-### Finalize the mode, prepare for submission and presentation
-- Overview final Presentation
-- Write Documentation draft/submission
+### Finalize the model, prepare for submission and presentation
+- Overview final presentation
+- Write documentation draft/submission
 - Finalize code
 - Submit
 
