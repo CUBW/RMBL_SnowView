@@ -63,6 +63,13 @@ def get_filename(location, date):
     return (f"{location}_{date}_snow.tif", f"{location}_{date}_snowbinary.tif")
 
 def process_images():
+    """
+    Process images by resampling, trimming, and storing them in a destination directory.
+    
+    This function loops through a list of image files, performs various operations on each file,
+    and stores the processed images in a destination directory. It also writes the file paths
+    and other information to a CSV file.
+    """
     locations = [
         'DeerCreekTrail', 
         'EastRiverTrail', 
