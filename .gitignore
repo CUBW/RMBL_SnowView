@@ -164,3 +164,8 @@ cython_debug/
 # VSCode
 .code-workspace
 RMBL_SnowView.code-workspace
+
+# Don't want to save all of that data
+data/2019-20
+data/image_processing.ipynb
+data/tif_files.csv
