@@ -63,20 +63,6 @@ def get_filename(location, date):
     return (f"{location}_{date}_snow.tif", f"{location}_{date}_snowbinary.tif")
 
 def process_images():
-    locations = [
-        'DeerCreekTrail', 
-        'EastRiverTrail', 
-        'Elkton', 
-        'JuddFalls', 
-        'LupineTrail', 
-        'ParadiseBasin', 
-        'RustlersGulch', 
-        'SlideRockRoad', 
-        'SnodgrassTrailhead', 
-        'SouthBaldy', 
-        'StrandHill', 
-        'VirginiaBasin'
-        ]
 
     bad_files = [
         "VirginiaBasin_2019_07_10_snow.tif",

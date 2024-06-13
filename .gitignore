@@ -169,3 +169,6 @@ RMBL_SnowView.code-workspace
 data/2019-20
 data/image_processing.ipynb
 data/tif_files.csv
+data/same_size
+data/640
+data/cv2_resize.ipynb
