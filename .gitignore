@@ -172,3 +172,4 @@ data/tif_files.csv
 data/same_size
 data/640
 data/cv2_resize.ipynb
+cv2_resize.ipynb

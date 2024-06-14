@@ -6,9 +6,51 @@ import csv
 import os
 
 from tqdm import tqdm
+from rasterio.plot import show
+from rasterio.warp import Resampling, reproject
+
 
 SOURCE_FILEPATH = "C:/Users/apfox/UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data" # update to match where your data is
 DEST_FILEPATH = "data/640" # update to match where you want it to go
+
+def resample(source, target):
+    """
+    Resamples the source data to match the size and projection of the target data.
+
+    Parameters:
+        source (rasterio.DatasetReader): The source dataset to be resampled.
+        target (rasterio.DatasetReader): The target dataset with the desired size and projection.
+
+    Returns:
+        numpy.ndarray: The resampled data with the same number of channels as the source dataset.
+
+    """
+    resampled_data = np.full((source.count, target.height, target.width), np.nan, dtype=np.float32)
+    for i in range(source.count):  # Loop over channels
+        rasterio.warp.reproject(
+            source=source.read(i + 1),
+            destination=resampled_data[i],
+            src_transform=source.transform,
+            src_crs=source.crs,
+            dst_transform=target.transform,
+            dst_crs=target.crs,
+            resampling=Resampling.nearest,
+            src_nodata=None,
+            dst_nodata=np.nan
+        )
+    return resampled_data
+
+def create_mask(data):
+    """
+    Creates a mask based on the given data.
+
+    Args:
+        data (numpy.ndarray): The input data.
+
+    Returns:
+        numpy.ndarray: The mask where values are True if they are greater than or equal to -3.3e+38, and False otherwise.
+    """
+    return data >= 0
 
 def process_image(location, date, new_width=640):
     """
@@ -28,50 +70,57 @@ def process_image(location, date, new_width=640):
     # Read the mask image
     mask = rasterio.open(os.path.join(SOURCE_FILEPATH, "Snow_Mask", location, f"{location}_{date}_snowbinary.tif"))
     
-    # Calculate the new height based on the desired width and the original aspect ratio
-    height, width = snow.shape[:2]
-    new_height = int(height * new_width / width)
+    # resample mask to image aspect ratio
+    resampled_mask_data = resample(mask, snow)
+    resampled_mask_meta = snow.meta.copy()
+    resampled_mask_meta['count'] = 1
 
-    # Resize snow
-    resized_snow = np.zeros((snow.read().shape[0], new_height, new_width), dtype=snow.read().dtype)
-    for i in range(snow.read().shape[0]):
-        resized_snow[i] = cv2.resize(snow.read()[i], (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+    # trim image to mask
+    mask_shape = create_mask(resampled_mask_data[0])
+    trimmed_snow_data = np.where(mask_shape, snow.read(), np.nan)
+   
 
-    # Update metadata
-    snow.meta.update({
-        "height": new_height,
-        "width": new_width,
-        "transform": snow.transform * snow.transform.scale(
-            (width / new_width),
-            (height / new_height)
+    # resize image and mask to ___x640
+    new_height = int(new_width * (snow.height / snow.width)) # preserve aspect ratio
+
+    resized_snow_data = np.full((snow.count, new_height, new_width), np.nan, dtype=np.float32)
+    for i in range(snow.count): 
+        resized_snow_data[i] = cv2.resize(trimmed_snow_data[i], (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+
+    resized_mask_data = np.full((1, new_height, new_width), np.nan, dtype=np.float32)
+    for i in range(mask.count):
+        resized_mask_data[i] = cv2.resize(resampled_mask_data[i], (new_width, new_height), interpolation=cv2.INTER_NEAREST)
+
+    del trimmed_snow_data
+    del resampled_mask_data
+
+    # fix metadatas
+    resized_snow_meta = snow.meta.copy()
+    resized_snow_meta['width'] = new_width
+    resized_snow_meta['height'] = new_height
+    resized_snow_meta['transform'] = snow.transform * snow.transform.scale(
+            (snow.width / new_width),
+            (snow.height / new_height)
         )
-    })
-
-    # Resample mask
-    resized_mask_image = np.zeros((mask.read().shape[0], new_height, new_width), dtype=mask.read().dtype)
-    for i in range(mask.read().shape[0]):
-        resized_mask_image[i] = cv2.resize(mask.read()[i], (new_width, new_height), interpolation=cv2.INTER_LINEAR)
     
-    # Update metadata
-    mask.meta.update({
-        "height": new_height,
-        "width": new_width,
-        "transform": mask.transform * mask.transform.scale(
-            (mask.read().shape[2] / new_width),
-            (mask.read().shape[1] / new_height)
+    resized_snow_binary_meta = resampled_mask_meta.copy()
+    resized_snow_binary_meta['width'] = new_width
+    resized_snow_binary_meta['height'] = new_height
+    resized_snow_binary_meta['transform'] = snow.transform * snow.transform.scale(
+            (snow.width / new_width),
+            (snow.height / new_height)
         )
-    })    
 
-    # Save the images
-    with rasterio.open(os.path.join(DEST_FILEPATH, f"{location}_{date}_snow.tif"), "w", **snow.meta) as dst:
-        dst.write(resized_snow)
+    # save image and mask
+    with rasterio.open(os.path.join(DEST_FILEPATH, f"{location}_{date}_snow.tif"), 'w', **resized_snow_meta) as dst:
+        for i in range(resized_snow_meta['count']):
+            dst.write(resized_snow_data[i], i + 1)
     
-    with rasterio.open(os.path.join(DEST_FILEPATH, f"{location}_{date}_snowbinary.tif"), "w", **mask.meta) as dst:
-        dst.write(resized_mask_image)
-
-    # return size of the images
+    with rasterio.open(os.path.join(DEST_FILEPATH, f"{location}_{date}_snowbinary.tif"), 'w', **resized_snow_binary_meta) as dst:
+        for i in range(resized_snow_binary_meta['count']):
+            dst.write(resized_mask_data[i], i + 1)
+        
     return (new_width, new_height)
-
 
 def process_images():
     """
@@ -136,8 +185,6 @@ def process_images():
 
         # write to csv
         writer.writerow([location, date, os.path.join(DEST_FILEPATH, f"{location}_{date}_snow.tif"), os.path.join(DEST_FILEPATH,f"{location}_{date}_snowbinary.tif"), size])
-
-
 
 if __name__=='__main__':
     print("Processing images...")
