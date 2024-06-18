@@ -170,7 +170,8 @@ data/2019-20
 data/image_processing.ipynb
 data/tif_files.csv
 data/same_size
-data/640
+data/640/
+data/640x800/
 data/cv2_resize.ipynb
 cv2_resize.ipynb
 data/640x1132
