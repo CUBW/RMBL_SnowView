@@ -169,3 +169,7 @@ RMBL_SnowView.code-workspace
 data/2019-20
 data/image_processing.ipynb
 data/tif_files.csv
+data/640x1132/
+data/640x800/
+cuda-repo-wsl-ubuntu-12-5-local_12.5.0-1_amd64.deb
+cudnn-local-repo-ubuntu2004-9.2.0_1.0-1_amd64.deb
