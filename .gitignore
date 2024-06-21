@@ -166,4 +166,5 @@ cython_debug/
 RMBL_SnowView.code-workspace
 
 # Don't want to save all of that data
-./2019-20
+
+data/
