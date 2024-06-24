@@ -167,4 +167,6 @@ RMBL_SnowView.code-workspace
 
 # Don't want to save all of that data
 data/
+*.joblib
+*.pkl
 640_df.pkl
