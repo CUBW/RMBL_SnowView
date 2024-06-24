@@ -1,3 +1,6 @@
+import numpy as np
+
+
 
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose, BatchNormalization, Activation, Dropout
 from tensorflow.keras.models import Model
@@ -120,4 +123,7 @@ if __name__ == "__main__":
     model = unet_model(n_classes=1, img_height=128, img_width=128, img_channels=3)
     # Compile the model with binary crossentropy loss and Adam optimizer
     model.compile(loss='binary_crossentropy', optimizer='adam')
+    print(f"Input shape: {model.input_shape}")
+    print(f"Output shape: {model.output_shape}")
+    print(f"Trainable params: {np.sum([np.prod(v._shape) for v in model.trainable_variables])}")
 
