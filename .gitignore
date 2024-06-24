@@ -169,6 +169,14 @@ RMBL_SnowView.code-workspace
 data/2019-20
 data/image_processing.ipynb
 data/tif_files.csv
+
+data/same_size
+data/640/
+data/640x800/
+data/cv2_resize.ipynb
+cv2_resize.ipynb
+data/640x1132
+
 TinyImages/Imagery
 TinyImages/Snow_Mask
 data/Cut_Images
@@ -176,3 +184,4 @@ data/Cut_Images
 *.tif
 data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif
 data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif.aux.xml
+
