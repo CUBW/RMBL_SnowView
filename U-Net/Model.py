@@ -83,7 +83,6 @@ def decoder_block(conv, pool, n_filters, dropout, l2):
     conv = conv_block(concat, n_filters, dropout, l2)
     return conv
 
-    
 
 def unet_model(n_classes, img_height, img_width, img_channels):
     
@@ -112,15 +111,15 @@ def unet_model(n_classes, img_height, img_width, img_channels):
     
     # Create the model
     model = Model(inputs=[inputs], outputs=[outputs])
-    
-    
-    
-    
     return model
+
+
+
+
 
 if __name__ == "__main__":
     # Create the U-Net model for binary segmentation
-    model = unet_model(n_classes=1, img_height=128, img_width=128, img_channels=3)
+    model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
     # Compile the model with binary crossentropy loss and Adam optimizer
     model.compile(loss='binary_crossentropy', optimizer='adam')
     print(f"Input shape: {model.input_shape}")
