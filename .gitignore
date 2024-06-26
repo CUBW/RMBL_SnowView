@@ -170,3 +170,5 @@ RMBL_SnowView.code-workspace
 data/
 *.joblib
 *.pkl
+
+gabor_filters/
