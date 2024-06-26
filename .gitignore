@@ -166,9 +166,9 @@ cython_debug/
 RMBL_SnowView.code-workspace
 
 # Don't want to save all of that data
-
 data/
 *.joblib
 *.pkl
 
 gabor_filters/
+640_df.pkl
