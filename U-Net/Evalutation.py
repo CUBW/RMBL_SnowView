@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import os
+from datetime import datetime
 import tensorflow as tf
-import datetime
 import json
 
 # Import created Classes
@@ -45,12 +45,36 @@ def load_history(filename):
         history_dict = json.load(f)
     return history_dict
 
+
+
 def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
-    # Extract training history
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
-    acc = history.history['accuracy']
-    val_acc = history.history['val_accuracy']
+    # Print type and content of history for debugging
+    print(f"Type of history: {type(history)}")
+    print(f"Content of history: {history}")
+
+    # Ensure history is a dictionary
+    if not isinstance(history, dict):
+        print("Error: history is not in the expected dictionary format.")
+        return
+
+    try:
+        # Accessing the history values
+        loss = history['loss'][0]
+        val_loss = history['val_loss'][0]
+        acc = history['accuracy'][0]
+        val_acc = history['val_accuracy'][0]
+
+        print(f"Loss: {loss}")
+        print(f"Validation Loss: {val_loss}")
+        print(f"Accuracy: {acc}")
+        print(f"Validation Accuracy: {val_acc}")
+    except KeyError as e:
+        print(f"Error: key {e} not found in history.")
+        return
+    except IndexError as e:
+        print(f"Error: index {e} out of range.")
+        return
+
 
     epochs = range(1, len(loss) + 1)
 
@@ -110,15 +134,43 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     
     
     
+
 if __name__ == "__main__":
     from Train import split_data
-    
-    
-    # load the saved u-net model in /model/u-net_model.keras
-    model = tf.keras.models.load_model("model/u-net_model.keras")
+
+    # Construct the absolute path for loading the model
+    model_path = os.path.abspath(os.path.join("U-Net", "2024-06-26", "Model_Data", "U-Net_2024-06-26.keras"))
+    print(f"Loading Model from Path: {model_path}")
+    try:
+        # Load the saved U-Net model
+        model = tf.keras.models.load_model(model_path)
+        print("Model loaded successfully.")
+    except ValueError as e:
+        print(f"File not found error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred while loading the model: {e}")
+
     model_name = "u-net"
-    # load the processed dataset
-    dataset = Process()
-    train_dataset, val_dataset, test_dataset = split_data(dataset)
-    evaluate_model(model, load_history(), train_dataset, val_dataset, test_dataset, model_name)
+
+    # Path to the history file
+    history_path = os.path.abspath(os.path.join("U-Net", "2024-06-26", "Model_Data", "history.json"))
     
+    try:
+        history = load_history(history_path)
+        print("History loaded and parsed successfully.")
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+        history = None
+    except json.JSONDecodeError as e:
+        print(f"Error parsing history JSON: {e}")
+        history = None
+    except Exception as e:
+        print(f"An unexpected error occurred while reading the history: {e}")
+        history = None
+
+    # Ensure history is loaded before proceeding
+    if history is not None:
+        # Load the processed dataset
+        dataset = Process()
+        train_dataset, val_dataset, test_dataset = split_data(dataset)
+        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)

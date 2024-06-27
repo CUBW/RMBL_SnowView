@@ -105,6 +105,7 @@ def train_masks(train_dataset):
     
 
 
+
 def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=8, epochs=1):
     # Define the learning rates and optimizer
     start_lr = 0.0001
@@ -134,13 +135,15 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
         metrics=['accuracy']
     )
 
-    # Save checkpoints
-    checkpoint_path = "training/model.keras"
-    checkpoint_dir = os.path.dirname(checkpoint_path)
+    # Directory for checkpoints
+    checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+    checkpoint_path = os.path.join(checkpoint_dir, "model_epoch_{epoch:02d}.keras")
 
     # Model checkpointing to save the best model based on validation loss
     callbacks = [tf.keras.callbacks.ModelCheckpoint(
-        checkpoint_path,
+        filepath=checkpoint_path,
         monitor='val_loss',
         save_best_only=True,
         save_freq='epoch',
@@ -153,24 +156,26 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
         epochs=epochs, 
         callbacks=callbacks
     )
-    
+
+    # Define the model name and directory for saving the final model
     model_name = "U-Net"
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
     
-    directory = os.path.join("/model", model_name, date_str, "Model_Data")
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if not os.path.exists(final_model_dir):
+        os.makedirs(final_model_dir)
 
     # Save history
-    history_file_name = os.path.join(directory, "history.json")
+    history_file_name = os.path.join(final_model_dir, "history.json")
     save_history(history, history_file_name)
 
-    # Define model save path and save model
+    # Define model save path and save final model
     model_file_name = f"{model_name}_{date_str}.keras"
-    model_save_path = os.path.join(directory, model_file_name)
+    model_save_path = os.path.join(final_model_dir, model_file_name)
     model.save(model_save_path)
     
-    print(f"Model and history saved successfully in {directory}")  
+    print(f"Model and history saved successfully in {final_model_dir}")
+    return model, history
 
 
 if __name__ == "__main__":
