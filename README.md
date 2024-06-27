@@ -2,7 +2,7 @@
 
 ## Description
 
-This is our project for the summer 2024 intership at RMBL. We are working with drone images of snow taken from 10 sites near Gothic, Colorado. The goal of the project is to develop a model that can perform image semantic segmentation on the images to mask where the snow is in the image. The goal of the project is to achieve a higher thatn 95% accuracy on the test set. We will also be making the model be abe to port to other datasets from other sites. It will also need to be used on future data from the same sites.
+This is our project for the summer 2024 intership at RMBL. We are working with drone images of snow taken from 12 sites near Gothic, Colorado. The goal of the project is to develop a model that can perform image semantic segmentation on the images to mask where the snow is in the image. The goal of the project is to achieve a higher than 95% accuracy on the test set. We will also be making the model be abe to port to other datasets from other sites. It will also need to be used on future data from the same sites.
 
 ## Iterations 1 through 6
 
