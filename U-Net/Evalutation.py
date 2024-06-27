@@ -23,7 +23,7 @@ def save_plot(plt, filename, model_name):
     model is saved in: /model/{model_name}/{current_date}/Model_Data/{filename}
     """
     date_str = datetime.now().strftime("%Y-%m-%d")
-    directory = os.path.join("/model", model_name, date_str,"results")
+    directory = os.path.join(model_name, date_str,"results")
     if not os.path.exists(directory):
         os.makedirs(directory)
     full_filepath = os.path.join(directory, filename)
@@ -59,10 +59,10 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
 
     try:
         # Accessing the history values
-        loss = history['loss'][0]
-        val_loss = history['val_loss'][0]
-        acc = history['accuracy'][0]
-        val_acc = history['val_accuracy'][0]
+        loss = history['loss']
+        val_loss = history['val_loss']
+        acc = history['accuracy']
+        val_acc = history['val_accuracy']
 
         print(f"Loss: {loss}")
         print(f"Validation Loss: {val_loss}")
