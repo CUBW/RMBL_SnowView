@@ -47,7 +47,8 @@ def Process():
 
     image_files.sort()  # Sort image files
     mask_files.sort()  # Sort mask files
-
+    
+    print(len(image_files))
     print("Creating dataset...")
     dataset = create_dataset(image_files, mask_files)
     print("Dataset created successfully with {} images".format(len(dataset)))
@@ -65,5 +66,7 @@ def Process():
 
 
 if __name__ == "__main__":
+#    print(os.listdir(FILEPATH))
     Process()
+    
     
