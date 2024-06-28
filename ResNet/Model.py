@@ -5,6 +5,18 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.applications import ResNet50V2
 
 def resnet_model(img_height, img_width, img_channels):
+    """
+    Creates a ResNet model for image segmentation.
+
+    Args:
+        img_height (int): The height of the input images.
+        img_width (int): The width of the input images.
+        img_channels (int): The number of channels in the input images.
+
+    Returns:
+        tf.keras.Model: The ResNet model for image segmentation.
+    """
+    
     # Encoder: Pre-trained ResNet50V2
     base_model = ResNet50V2(weights='imagenet', include_top=False, input_shape=(img_height, img_width, img_channels))
     
