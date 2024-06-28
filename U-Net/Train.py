@@ -96,7 +96,7 @@ def train_masks(train_dataset):
         flat_mask = tf.reshape(mask, [-1])  # Flatten the mask
         unique_labels = tf.unique(flat_mask)[0].numpy()  # Extract unique labels
         class_labels.extend(unique_labels)
-
+    
     # Calculate class weights based on class imbalance
     class_weights = compute_class_weight(class_weight="balanced", classes=np.unique(class_labels), y=class_labels)
     print("Class weights computed successfully")
