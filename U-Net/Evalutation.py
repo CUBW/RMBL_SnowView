@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import tensorflow as tf
 import json
-
+import cv2
 # Import created Classes
 from Processing import Process
 
@@ -130,6 +130,70 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     conf_matrix = confusion_matrix(test_labels, pred_labels)
     print("Confusion Matrix:\n", conf_matrix)
     
+
+def visualize(img, mask, pred_image, accuracy = None, confusion_matrix = None, location=None, date=None):
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+
+    # Display original image
+    axs[0, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    axs[0, 0].set_title('Original Image')
+
+    # Display mask
+    axs[0, 1].imshow(mask.read(1), cmap='gray')
+    axs[0, 1].set_title('Mask')
+
+    # Display predicted image
+    axs[1, 0].imshow(pred_image, cmap='jet')
+    axs[1, 0].set_title('Predicted Image')
+
+    # Display confusion matrix as table (if provided)
+    if confusion_matrix is not None:
+        axs[1, 1].axis('tight')
+        axs[1, 1].axis('off')
+
+        #change everything to percents
+        confusion_matrix = confusion_matrix.astype('float') / confusion_matrix.sum(axis=1)[:, np.newaxis]
+
+        #multiply by 100 and round to 4 decimal places, then convert to strings and add % sign
+        confusion_matrix = np.round(confusion_matrix * 100, 3).astype(str)
+        confusion_matrix = np.char.add(confusion_matrix, '%')
+        
+        # Create the table
+        table_data = [[''] + [f'Pred {i}' for i in range(confusion_matrix.shape[1])]]  # Header row
+        for i in range(confusion_matrix.shape[0]):
+            row = [f'True {i}'] + list(confusion_matrix[i])
+            table_data.append(row)
+        
+        # Add the table to the subplot
+        table = axs[1, 1].table(cellText=table_data, loc='center', cellLoc='center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(12)
+        table.scale(1.2, 1.2)
+        table.auto_set_column_width([0,1])
+        axs[1, 1].set_title('Confusion Matrix')
+        
+        # Add accuracy text near the confusion matrix
+        if accuracy is not None:
+            axs[1, 1].text(0.5, -0.1, f'Accuracy: {accuracy}', horizontalalignment='center', verticalalignment='center', fontsize=12, transform=axs[1, 1].transAxes)
+    elif accuracy is not None:
+        # Display accuracy text in place of confusion matrix
+        axs[1, 1].text(0.5, 0.5, f'Accuracy: {accuracy}', horizontalalignment='center', verticalalignment='center', fontsize=12)
+        axs[1, 1].axis('off')
+    else:
+        axs[1, 1].text(0.5, 0.5, 'No Confusion Matrix or Accuracy Provided', horizontalalignment='center', verticalalignment='center', fontsize=12)
+        axs[1, 1].axis('off')
+
+    if location is not None and date is not None:
+        plt.suptitle(f'Location: {location}, Date: {date}')
+    elif location is not None:
+        plt.suptitle(f'Location: {location}')
+    elif date is not None:
+        plt.suptitle(f'Date: {date}')
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 if __name__ == "__main__":
     from Train import split_data
