@@ -187,6 +187,8 @@ if __name__ == "__main__":
     unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
     model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights)
     from Evalutation import evaluate_model
-    evaluate_model(model, history, train_dataset,val_dataset, test_dataset)
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    model_name = "U-Net" + "_" + date_str
+    evaluate_model(model, history, train_dataset,val_dataset, test_dataset, model_name=model_name)
 
     
