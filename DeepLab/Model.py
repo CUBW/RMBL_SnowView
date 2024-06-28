@@ -8,11 +8,33 @@ import keras
 from keras import layers, models, ops
 
 def convolution_block(block_input, num_filters=256, kernel_size=3, dilation_rate=1, use_bias=False):
+    """
+    Applies a convolutional block to the input tensor.
+
+    Args:
+        block_input (tensor): The input tensor to the convolutional block.
+        num_filters (int): The number of filters in the convolutional layer. Default is 256.
+        kernel_size (int): The size of the convolutional kernel. Default is 3.
+        dilation_rate (int): The dilation rate for the convolutional layer. Default is 1.
+        use_bias (bool): Whether to use bias in the convolutional layer. Default is False.
+
+    Returns:
+        tensor: The output tensor after applying the convolutional block.
+    """
     x = layers.Conv2D(num_filters, kernel_size=kernel_size, dilation_rate=dilation_rate, padding="same", use_bias=use_bias,kernel_initializer=keras.initializers.HeNormal())(block_input)
     x = layers.BatchNormalization()(x)
     return ops.nn.relu(x)
 
 def DilatedSpatialPyramidPooling(dspp_input):
+    """
+    Performs Dilated Spatial Pyramid Pooling on the input tensor.
+
+    Args:
+        dspp_input (tensor): Input tensor to the Dilated Spatial Pyramid Pooling layer.
+
+    Returns:
+        tensor: Output tensor after applying Dilated Spatial Pyramid Pooling.
+    """
     dims = dspp_input.shape
     x = layers.AveragePooling2D(pool_size=(dims[-3], dims[-2]))(dspp_input)
     x = convolution_block(x, kernel_size=1, use_bias=True)
@@ -29,6 +51,18 @@ def DilatedSpatialPyramidPooling(dspp_input):
 
 
 def DeepLabV3Plus(n_classes, img_height, img_width, img_channels):
+    """
+    Creates a keras model based on the DeepLabV3+ architecture for semantic segmentation using resnet50 as a backbone
+    
+    Args:
+        n_classes (int): The number of classes for semantic segmentation.
+        img_height (int): The height of the input images.
+        img_width (int): The width of the input images.
+        img_channels (int): The number of channels in the input images.
+    
+    Returns:
+        keras.Model: The DeepLabV3Plus model.
+    """
     model_input = keras.Input(shape=(img_height, img_width, img_channels))
     preprocessed = keras.applications.resnet50.preprocess_input(model_input)
     resnet50 = keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=preprocessed)
