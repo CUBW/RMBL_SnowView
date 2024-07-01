@@ -9,7 +9,7 @@ import cv2
 # Import created Classes
 from Processing import Process
 
-def save_plot(plt, filename, model_name):
+def save_plot(plt, filename, model_name, date_str = datetime.now().strftime("%Y-%m-%d") ):
     """
     Save the plot to a file with a structured directory based on model name and current date.
     
@@ -22,7 +22,6 @@ def save_plot(plt, filename, model_name):
     plot is saved in: /model/{model_name}/{current_date}/results/{filename}
     model is saved in: /model/{model_name}/{current_date}/Model_Data/{filename}
     """
-    date_str = datetime.now().strftime("%Y-%m-%d")
     directory = os.path.join(model_name, date_str,"results")
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -46,12 +45,10 @@ def load_history(filename):
     return history_dict
 
 
-
 def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
     # Print type and content of history for debugging
     print(f"Type of history: {type(history)}")
     print(f"Content of history: {history}")
-
     # Ensure history is a dictionary
     if not isinstance(history, dict):
         print("Error: history is not in the expected dictionary format.")
@@ -74,7 +71,6 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     except IndexError as e:
         print(f"Error: index {e} out of range.")
         return
-
 
     epochs = range(1, len(loss) + 1)
 
@@ -116,83 +112,80 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
 
     # Generate predictions and confusion matrix
     predictions = model.predict(test_dataset.batch(8))
-    test_labels_list = list(test_dataset.map(lambda x, y: y))
-    test_labels = np.concatenate([label_batch.numpy() for label_batch in test_labels_list], axis=0)
+    test_images_list = list(test_dataset.map(lambda x, y: x))
+    test_masks_list = list(test_dataset.map(lambda x, y: y))
+    
+    test_images = np.concatenate([image_batch.numpy() for image_batch in test_images_list], axis=0)
+    test_masks = np.concatenate([mask_batch.numpy() for mask_batch in test_masks_list], axis=0)
 
     # Assuming test_labels are in one-hot encoded format
-    test_labels = np.argmax(test_labels, axis=1)
+    test_labels = np.argmax(test_masks, axis=1)
     pred_labels = np.argmax(predictions, axis=1)
 
     if len(test_labels) != len(pred_labels):
         print(f"Inconsistent number of samples: true labels - {len(test_labels)}, predictions - {len(pred_labels)}")
-        return
+        return test_images, test_masks, predictions
 
     conf_matrix = confusion_matrix(test_labels, pred_labels)
     print("Confusion Matrix:\n", conf_matrix)
     
+    return test_images, test_masks, predictions
 
-def visualize(img, mask, pred_image, accuracy = None, confusion_matrix = None, location=None, date=None):
+
+
+def visualize(img, mask, pred_image, location=None, date=None):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10))
 
     # Display original image
     axs[0, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     axs[0, 0].set_title('Original Image')
+    axs[0, 0].axis('off')
 
     # Display mask
-    axs[0, 1].imshow(mask.read(1), cmap='gray')
+    axs[0, 1].imshow(mask, cmap='gray')
     axs[0, 1].set_title('Mask')
+    axs[0, 1].axis('off')
 
     # Display predicted image
     axs[1, 0].imshow(pred_image, cmap='jet')
     axs[1, 0].set_title('Predicted Image')
+    axs[1, 0].axis('off')
 
-    # Display confusion matrix as table (if provided)
-    if confusion_matrix is not None:
-        axs[1, 1].axis('tight')
-        axs[1, 1].axis('off')
+    # If needed, leave the fourth subplot empty
+    axs[1, 1].axis('off')
 
-        #change everything to percents
-        confusion_matrix = confusion_matrix.astype('float') / confusion_matrix.sum(axis=1)[:, np.newaxis]
-
-        #multiply by 100 and round to 4 decimal places, then convert to strings and add % sign
-        confusion_matrix = np.round(confusion_matrix * 100, 3).astype(str)
-        confusion_matrix = np.char.add(confusion_matrix, '%')
-        
-        # Create the table
-        table_data = [[''] + [f'Pred {i}' for i in range(confusion_matrix.shape[1])]]  # Header row
-        for i in range(confusion_matrix.shape[0]):
-            row = [f'True {i}'] + list(confusion_matrix[i])
-            table_data.append(row)
-        
-        # Add the table to the subplot
-        table = axs[1, 1].table(cellText=table_data, loc='center', cellLoc='center')
-        table.auto_set_font_size(False)
-        table.set_fontsize(12)
-        table.scale(1.2, 1.2)
-        table.auto_set_column_width([0,1])
-        axs[1, 1].set_title('Confusion Matrix')
-        
-        # Add accuracy text near the confusion matrix
-        if accuracy is not None:
-            axs[1, 1].text(0.5, -0.1, f'Accuracy: {accuracy}', horizontalalignment='center', verticalalignment='center', fontsize=12, transform=axs[1, 1].transAxes)
-    elif accuracy is not None:
-        # Display accuracy text in place of confusion matrix
-        axs[1, 1].text(0.5, 0.5, f'Accuracy: {accuracy}', horizontalalignment='center', verticalalignment='center', fontsize=12)
-        axs[1, 1].axis('off')
-    else:
-        axs[1, 1].text(0.5, 0.5, 'No Confusion Matrix or Accuracy Provided', horizontalalignment='center', verticalalignment='center', fontsize=12)
-        axs[1, 1].axis('off')
-
-    if location is not None and date is not None:
-        plt.suptitle(f'Location: {location}, Date: {date}')
-    elif location is not None:
-        plt.suptitle(f'Location: {location}')
-    elif date is not None:
-        plt.suptitle(f'Date: {date}')
+    # Add location and date to the title
+    title = ""
+    if location:
+        title += f'Location: {location}'
+    if date:
+        if title:
+            title += f', Date: {date}'
+        else:
+            title += f'Date: {date}'
+    if title:
+        plt.suptitle(title, fontsize=16)
 
     plt.tight_layout()
     plt.show()
+    return plt
 
+
+def visualize_predictions(test_images, test_masks, predictions, location=None, date=None, num_examples=3, fileDir=None):
+    import random
+    
+    # Randomly select examples to visualize, based off of the dataset
+    indices = random.sample(range(len(test_images)), num_examples)
+
+    for idx in indices:
+        img = test_images[idx]
+        mask = test_masks[idx]
+        pred_image = predictions[idx]
+
+        # Visualize the example
+        plot: plt = visualize(img, mask, pred_image, location, date)
+        # Save the plot
+        save_plot(plot, f'example_{idx}_prediction.png', 'U-Net')
 
 
 if __name__ == "__main__":
@@ -210,7 +203,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An unexpected error occurred while loading the model: {e}")
 
-    model_name = "u-net"
+    model_name = "U-Net"
 
     # Path to the history file
     history_path = os.path.abspath(os.path.join("U-Net", "2024-06-28", "Model_Data", "history.json"))
@@ -233,4 +226,5 @@ if __name__ == "__main__":
         # Load the processed dataset
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
-        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
+        test_images, test_masks, predictions = evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
+        visualize_predictions(test_images, test_masks, predictions, num_examples=3)
