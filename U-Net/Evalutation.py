@@ -48,7 +48,7 @@ def load_history(filename):
 def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
     # Print type and content of history for debugging
     print(f"Type of history: {type(history)}")
-    print(f"Content of history: {history}")
+    # print(f"Content of history: {history}")
     # Ensure history is a dictionary
     if not isinstance(history, dict):
         print("Error: history is not in the expected dictionary format.")
@@ -61,10 +61,10 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
         acc = history['accuracy']
         val_acc = history['val_accuracy']
 
-        print(f"Loss: {loss}")
-        print(f"Validation Loss: {val_loss}")
-        print(f"Accuracy: {acc}")
-        print(f"Validation Accuracy: {val_acc}")
+        # print(f"Loss: {loss}")
+        # print(f"Validation Loss: {val_loss}")
+        # print(f"Accuracy: {acc}")
+        # print(f"Validation Accuracy: {val_acc}")
     except KeyError as e:
         print(f"Error: key {e} not found in history.")
         return
