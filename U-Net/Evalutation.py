@@ -49,7 +49,6 @@ def load_history(filename):
 
 def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
     # Print type and content of history for debugging
-    print(f"Type of history: {type(history)}")
 
     if not isinstance(history, dict):
         print("Error: history is not in the expected dictionary format.")
@@ -95,16 +94,16 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     # Show plot on screen (if running in an environment that supports plotting)
     plt.show()
 
-    # Evaluate on training dataset
-    train_loss = model.evaluate(train_dataset.batch(8))[0]
-    # Evaluate on validation dataset
-    val_loss_eval = model.evaluate(val_dataset.batch(8))[0]
-    # Evaluate on test dataset
-    test_loss = model.evaluate(test_dataset.batch(8))[0]
+    # # Evaluate on training dataset
+    # train_loss = model.evaluate(train_dataset.batch(8))[0]
+    # # Evaluate on validation dataset
+    # val_loss_eval = model.evaluate(val_dataset.batch(8))[0]
+    # # Evaluate on test dataset
+    # test_loss = model.evaluate(test_dataset.batch(8))[0]
 
-    print(f"Train loss: {train_loss}")
-    print(f"Validation loss: {val_loss_eval}")
-    print(f"Test loss: {test_loss}")
+    # print(f"Train loss: {train_loss}")
+    # print(f"Validation loss: {val_loss_eval}")
+    # print(f"Test loss: {test_loss}")
 
     # Generate predictions and confusion matrix
     predictions = model.predict(test_dataset.batch(8))
@@ -127,9 +126,15 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     
 
 
+
 def visualize(img, mask, pred_image, location=None, date=None):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10))
 
+    # Ensure img is a numpy array and convert depth to uint8
+    img = np.array(img)
+    if img.dtype != np.uint8:
+        img = (img * 255).astype(np.uint8)  # Rescale if needed and convert to uint8
+    
     # Display original image
     axs[0, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     axs[0, 0].set_title('Original Image')
@@ -141,7 +146,7 @@ def visualize(img, mask, pred_image, location=None, date=None):
     axs[0, 1].axis('off')
 
     # Display predicted image
-    axs[1, 0].imshow(pred_image, cmap='jet')
+    axs[1, 0].imshow(pred_image, cmap='gray')
     axs[1, 0].set_title('Predicted Image')
     axs[1, 0].axis('off')
 
@@ -181,6 +186,9 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
         plt = visualize(img, mask, predictions[i], location, date)
         if fileDir:
             save_plot(plt, f'prediction_{i}.png', fileDir)
+
+
+
 
 if __name__ == "__main__":
     from Train import split_data

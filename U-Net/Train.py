@@ -63,9 +63,9 @@ def split_data(dataset, train_size=0.8, val_size=0.1, test_size=0.1):
     val_size = int(length * val_size)
     test_size = int(length * test_size)
     
-    print("Size of training set: ", train_size)
-    print("Size of validation set: ", val_size)
-    print("Size of test set: ", test_size)
+    # print("Size of training set: ", train_size)
+    # print("Size of validation set: ", val_size)
+    # print("Size of test set: ", test_size)
     
     train_dataset = dataset[:train_size]
     val_dataset = dataset[train_size:train_size+val_size]
