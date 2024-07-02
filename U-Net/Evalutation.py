@@ -6,8 +6,10 @@ from datetime import datetime
 import tensorflow as tf
 import json
 import cv2
-# Import created Classes
-from Processing import Process
+import random
+
+from Processing import Process  # Assuming this is where necessary classes are imported
+
 
 def save_plot(plt, filename, model_name, date_str = datetime.now().strftime("%Y-%m-%d") ):
     """
@@ -48,8 +50,7 @@ def load_history(filename):
 def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
     # Print type and content of history for debugging
     print(f"Type of history: {type(history)}")
-    # print(f"Content of history: {history}")
-    # Ensure history is a dictionary
+
     if not isinstance(history, dict):
         print("Error: history is not in the expected dictionary format.")
         return
@@ -60,11 +61,6 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
         val_loss = history['val_loss']
         acc = history['accuracy']
         val_acc = history['val_accuracy']
-
-        # print(f"Loss: {loss}")
-        # print(f"Validation Loss: {val_loss}")
-        # print(f"Accuracy: {acc}")
-        # print(f"Validation Accuracy: {val_acc}")
     except KeyError as e:
         print(f"Error: key {e} not found in history.")
         return
@@ -129,8 +125,6 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     conf_matrix = confusion_matrix(test_labels, pred_labels)
     print("Confusion Matrix:\n", conf_matrix)
     
-    return test_images, test_masks, predictions
-
 
 
 def visualize(img, mask, pred_image, location=None, date=None):
@@ -168,25 +162,25 @@ def visualize(img, mask, pred_image, location=None, date=None):
 
     plt.tight_layout()
     plt.show()
+
     return plt
 
 
-def visualize_predictions(test_images, test_masks, predictions, location=None, date=None, num_examples=3, fileDir=None):
-    import random
+
+def visualize_predictions(dataset, model, location=None, date=None, num_examples=3, fileDir=None):
+    # Take a random sample of images from the dataset
+    samples = random.sample(list(dataset), num_examples)
     
-    # Randomly select examples to visualize, based off of the dataset
-    indices = random.sample(range(len(test_images)), num_examples)
-
-    for idx in indices:
-        img = test_images[idx]
-        mask = test_masks[idx]
-        pred_image = predictions[idx]
-
-        # Visualize the example
-        plot: plt = visualize(img, mask, pred_image, location, date)
-        # Save the plot
-        save_plot(plot, f'example_{idx}_prediction.png', 'U-Net')
-
+    # Separate images and masks
+    imgs, masks = zip(*samples)
+    imgs_array = np.array(imgs)
+    
+    predictions = model.predict(imgs_array)
+    
+    for i, (img, mask) in enumerate(samples):
+        plt = visualize(img, mask, predictions[i], location, date)
+        if fileDir:
+            save_plot(plt, f'prediction_{i}.png', fileDir)
 
 if __name__ == "__main__":
     from Train import split_data
@@ -226,5 +220,5 @@ if __name__ == "__main__":
         # Load the processed dataset
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
-        test_images, test_masks, predictions = evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
-        visualize_predictions(test_images, test_masks, predictions, num_examples=3)
+        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
+        visualize_predictions(train_dataset, model , num_examples=3)

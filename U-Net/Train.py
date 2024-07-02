@@ -148,18 +148,22 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
         save_best_only=True,
         save_freq='epoch',
     )]
-
+    # Convert class_weights to dictionary if it's a numpy array
+    if isinstance(class_weights, np.ndarray):
+        print("Converting class weights to dictionary")
+        class_weights = {i: weight for i, weight in enumerate(class_weights)}
+    
     # Training the model with validation data
     history = model.fit(
         train_dataset.batch(batch_size),
         validation_data=val_dataset.batch(batch_size), 
         epochs=epochs, 
-        callbacks=callbacks
+        callbacks=callbacks,
     )
 
     # Define the model name and directory for saving the final model
     model_name = "U-Net"
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
     final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
