@@ -133,5 +133,5 @@ if __name__ == "__main__":
     print(f"Class weights: {class_weights}")
     print("Training the model...")
     xception = xception_model(img_height=640, img_width=640, img_channels=3)
-    model, history = train_model(xception, train_dataset, val_dataset, test_dataset, class_weights, epochs=50)
+    model, history = train_model(xception, train_dataset, val_dataset, test_dataset, class_weights, epochs=100)
     evaluate_model(model, history, train_dataset,val_dataset, test_dataset)
