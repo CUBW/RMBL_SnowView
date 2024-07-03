@@ -229,4 +229,4 @@ if __name__ == "__main__":
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
         evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
-        visualize_predictions(train_dataset, model , num_examples=3)
+        visualize_predictions(train_dataset, model , num_examples=1)
