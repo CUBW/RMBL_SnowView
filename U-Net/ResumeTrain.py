@@ -45,17 +45,26 @@ def resume_train(model_checkpoint_path, train_dataset, val_dataset, class_weight
     # Configure the loss function and recompile the model
     loss = tf.keras.losses.BinaryCrossentropy()
 
+    # Print model summary for clearing any ambiguity on model structure
+    model.summary()
+
     # Building Sequential model and including the unet_model with rescaling similar to the normal training script
     model_with_rescaling = tf.keras.Sequential([
         tf.keras.layers.Rescaling(1./255),
         model
     ])
-    
+
+    # Attempt without any metrics first
     model_with_rescaling.compile(
         optimizer=optimizer,
-        loss=loss, 
-        metrics=['accuracy']
+        loss=loss
     )
+
+    # Check and set up datasets
+    train_batch = next(iter(train_dataset.batch(batch_size)))
+    val_batch = next(iter(val_dataset.batch(batch_size)))
+    print("Train batch shape:", train_batch[0].shape, train_batch[1].shape)
+    print("Val batch shape:", val_batch[0].shape, val_batch[1].shape)
 
     # Directory for checkpoints
     checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
@@ -75,6 +84,12 @@ def resume_train(model_checkpoint_path, train_dataset, val_dataset, class_weight
     if isinstance(class_weights, np.ndarray):
         print("Converting class weights to dictionary")
         class_weights = {i: weight for i, weight in enumerate(class_weights)}
+    print("Class Weights: ", class_weights)
+
+    # Reset states for metrics
+    for metric in model_with_rescaling.metrics:
+        print(f"Resetting state for metric: {metric.name}")
+        metric.reset_state()
 
     # Continue training the model from the loaded state
     history = model_with_rescaling.fit(
@@ -83,7 +98,6 @@ def resume_train(model_checkpoint_path, train_dataset, val_dataset, class_weight
         initial_epoch=epoch_num + 1,
         epochs=epoch_num + remaining_epochs, 
         callbacks=callbacks,
-       
     )
 
     # Define the model name and directory for saving the final model
@@ -108,7 +122,7 @@ def resume_train(model_checkpoint_path, train_dataset, val_dataset, class_weight
 
 if __name__ == "__main__":
     # Example usage with dummy values for train_dataset and val_dataset
-    model_checkpoint_path = "checkpoints/model_epoch_10.keras"
+    model_checkpoint_path = "checkpoints/model_epoch_100.keras"
     dataset = Process()
     train_dataset, val_dataset, test_dataset = split_data(dataset)
     class_weights = train_masks(train_dataset)
