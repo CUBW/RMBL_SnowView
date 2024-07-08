@@ -11,25 +11,25 @@ import random
 from Processing import Process  # Assuming this is where necessary classes are imported
 
 
-def save_plot(plt, filename, model_name, date_str = datetime.now().strftime("%Y-%m-%d") ):
+def save_plot(fig, filename, fileDir):
     """
     Save the plot to a file with a structured directory based on model name and current date.
     
     Args:
-    - plt: The plot object to save.
+    - fig: The plot object to save.
     - filename: The filename template to save the plot to.
-    - model_name: The name of the model for directory structuring.
+    - fileDir: The name of the model for directory structuring.
 
     Result:
-    plot is saved in: /model/{model_name}/{current_date}/results/{filename}
-    model is saved in: /model/{model_name}/{current_date}/Model_Data/{filename}
+        plot is saved in: /model/{model_name}/{current_date}/results/{filename}
+        model is saved in: /model/{model_name}/{current_date}/Model_Data/{filename}
     """
-    directory = os.path.join(model_name, date_str,"results")
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    full_filepath = os.path.join(directory, filename)
-    plt.savefig(full_filepath)
-    plt.close()
+    # if directory is not created, create it
+    if not os.path.exists(fileDir):
+        os.makedirs(fileDir)
+    full_filepath = os.path.join(fileDir, filename)
+    fig.savefig(full_filepath)
+    plt.close(fig)
 
 
 def load_history(filename):
@@ -47,7 +47,7 @@ def load_history(filename):
     return history_dict
 
 
-def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
+def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path):
     # Print type and content of history for debugging
 
     if not isinstance(history, dict):
@@ -70,7 +70,7 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     epochs = range(1, len(loss) + 1)
 
     # Plot training & validation loss and accuracy
-    plt.figure(figsize=(20, 5))
+    fig = plt.figure(figsize=(20, 5))
 
     plt.subplot(1, 2, 1)
     plt.plot(epochs, loss, label='Training loss')
@@ -89,21 +89,10 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, mod
     plt.legend()
 
     # Save plot
-    save_plot(plt, 'training_validation_loss_accuracy.png', model_name)
+    save_plot(fig, 'training_validation_loss_accuracy.png', save_path)
 
     # Show plot on screen (if running in an environment that supports plotting)
     plt.show()
-
-    # # Evaluate on training dataset
-    # train_loss = model.evaluate(train_dataset.batch(8))[0]
-    # # Evaluate on validation dataset
-    # val_loss_eval = model.evaluate(val_dataset.batch(8))[0]
-    # # Evaluate on test dataset
-    # test_loss = model.evaluate(test_dataset.batch(8))[0]
-
-    # print(f"Train loss: {train_loss}")
-    # print(f"Validation loss: {val_loss_eval}")
-    # print(f"Test loss: {test_loss}")
 
     # Generate predictions and confusion matrix
     predictions = model.predict(test_dataset.batch(8))
@@ -167,8 +156,7 @@ def visualize(img, mask, pred_image, location=None, date=None):
 
     plt.tight_layout()
     plt.show()
-
-    return plt
+    return fig
 
 
 
@@ -183,18 +171,16 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
     predictions = model.predict(imgs_array)
     
     for i, (img, mask) in enumerate(samples):
-        plt = visualize(img, mask, predictions[i], location, date)
+        fig = visualize(img, mask, predictions[i], location, date)
         if fileDir:
-            save_plot(plt, f'prediction_{i}.png', fileDir)
-
-
+            filename = f'prediction_{i}.png'
+            save_plot(fig, filename, fileDir)
 
 
 if __name__ == "__main__":
     from Train import split_data
-
     # Construct the absolute path for loading the model
-    model_path = os.path.abspath(os.path.join("U-Net", "2024-06-28", "Model_Data", "U-Net_2024-06-28.keras"))
+    model_path = os.path.abspath(os.path.join("U-Net", "2024-06-27", "Model_Data", "U-Net_2024-06-27.keras"))
     print(f"Loading Model from Path: {model_path}")
     try:
         # Load the saved U-Net model
@@ -205,10 +191,10 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An unexpected error occurred while loading the model: {e}")
 
-    model_name = "U-Net"
+    save_path = "U-Net/2024-06-27/results/"
 
     # Path to the history file
-    history_path = os.path.abspath(os.path.join("U-Net", "2024-06-28", "Model_Data", "history.json"))
+    history_path = os.path.abspath(os.path.join("U-Net", "2024-06-27", "Model_Data", "history.json"))
     
     try:
         history = load_history(history_path)
@@ -228,5 +214,5 @@ if __name__ == "__main__":
         # Load the processed dataset
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
-        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
-        visualize_predictions(train_dataset, model , num_examples=1)
+        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path)
+        visualize_predictions(train_dataset, model , num_examples=1, fileDir="U-Net/2024-06-27/results")
