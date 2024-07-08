@@ -60,7 +60,7 @@ def encoder_block(inputs , n_filters, dropout, l2):
     return conv, pool
 
 
-def decoder_block(conv, pool, n_filters, dropout, l2):
+def decoder_block(pool, skip_connection, n_filters, dropout, l2):
     """
     Function to create a decoder block with a Conv2DTranspose layer followed by a concatenation of the skip connections and a Conv2D layer.
     
@@ -75,9 +75,9 @@ def decoder_block(conv, pool, n_filters, dropout, l2):
     """
     
     # Conv2DTranspose Layer
-    conv = Conv2DTranspose(n_filters, (2, 2), strides=(2, 2), padding='same', kernel_regularizer= tf.keras.regularizers.L2(l2))(conv)
+    upsample = Conv2DTranspose(n_filters, (2, 2), strides=(2, 2), padding='same', kernel_regularizer= tf.keras.regularizers.L2(l2))(pool)
     # Concatenate the skip connections
-    concat = concatenate([conv, pool])
+    concat = concatenate([upsample, skip_connection])
     
     # Convolutional Block
     conv = conv_block(concat, n_filters, dropout, l2)
@@ -89,23 +89,24 @@ def unet_model(n_classes, img_height, img_width, img_channels):
     inputs = Input((img_height, img_width, img_channels))
     
     # Encoder
-    conv1, pool1 = encoder_block(inputs, n_filters=16, dropout=0, l2=0.0001) 
-    conv2, pool2 = encoder_block(pool1, n_filters=32, dropout=0, l2=0.0001) 
-    conv3, pool3 = encoder_block(pool2, n_filters=64, dropout=0, l2=0.0001)
-    conv4, pool4 = encoder_block(pool3, n_filters=128, dropout=0, l2=0.001)
-    conv5, pool5 = encoder_block(pool4, n_filters=256, dropout=0, l2=0.001)
-    conv6, pool6 = encoder_block(pool5, n_filters=512, dropout=0, l2=0.01)
+    conv1, pool1 = encoder_block(inputs, 16, 0, 0.0001)
+    conv2, pool2 = encoder_block(pool1, 32, 0, 0.0001)
+    conv3, pool3 = encoder_block(pool2, 64, 0, 0.0001)
+    conv4, pool4 = encoder_block(pool3, 128, 0, 0.001)
+    conv5, pool5 = encoder_block(pool4, 256, 0, 0.001)
+    conv6, pool6 = encoder_block(pool5, 512, 0, 0.01)
     
     # Bottleneck
     bridge = conv_block(pool6, n_filters=1024, dropout=0, l2=0.01)
     
     # Decoder
-    upsampling6 = decoder_block(bridge, conv6, n_filters=512, dropout=0, l2=0.01)
-    upsampling5 = decoder_block(upsampling6, conv5, n_filters=256, dropout=0, l2=0.001)
-    upsampling4 = decoder_block(upsampling5, conv4, n_filters=128, dropout=0, l2=0.001)
-    upsampling3 = decoder_block(upsampling4, conv3, n_filters=64, dropout=0, l2=0.0001)
-    upsampling2 = decoder_block(upsampling3, conv2, n_filters=32, dropout=0, l2=0.0001)
-    upsampling1 = decoder_block(upsampling2, conv1, n_filters=16, dropout=0, l2=0.0001)
+    upsampling6 = decoder_block(bridge, conv6, 512, 0, 0.01)  # From bottleneck to first decoder layer
+    upsampling5 = decoder_block(upsampling6, conv5, 256, 0, 0.001)  # From first decoder layer to second
+    upsampling4 = decoder_block(upsampling5, conv4, 128, 0, 0.001)  # From second decoder layer to third
+    upsampling3 = decoder_block(upsampling4, conv3, 64, 0, 0.0001)  # From third decoder layer to fourth
+    upsampling2 = decoder_block(upsampling3, conv2, 32, 0, 0.0001)  # From fourth decoder layer to fifth
+    upsampling1 = decoder_block(upsampling2, conv1, 16, 0, 0.0001)  # From fifth decoder layer to final decoder layer
+
 
     outputs = Conv2D(n_classes, (1, 1), activation='sigmoid')(upsampling1)
     
