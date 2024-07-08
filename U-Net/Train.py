@@ -106,7 +106,8 @@ def train_masks(train_dataset):
 
 
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=100):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=1):
+    model_name = "U-Net"
     # Define the learning rates and optimizer
     start_lr = 0.0001
     end_lr = 1e-6
@@ -129,17 +130,20 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
         unet_model
     ])
 
-    model.compile(
-        optimizer=optimizer,
-        loss=loss, 
-        metrics=['accuracy']
-    )
+    model.compile(optimizer=optimizer, 
+                loss=loss,
+                metrics=['accuracy',
+                        tf.keras.metrics.Precision(),
+                        tf.keras.metrics.Recall(),
+                        tf.keras.metrics.MeanIoU(num_classes=1),
+                        ]
+                )
 
     # Directory for checkpoints
     checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    checkpoint_path = os.path.join(checkpoint_dir, "model_epoch_{epoch:02d}.keras")
+    checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_epoch_{{epoch:02d}}.keras")
 
     # Model checkpointing to save the best model based on validation loss
     callbacks = [tf.keras.callbacks.ModelCheckpoint(
@@ -162,7 +166,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
     )
 
     # Define the model name and directory for saving the final model
-    model_name = "U-Net"
+    
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
     final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
     
