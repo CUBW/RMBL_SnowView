@@ -101,6 +101,11 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, sav
     
     test_images = np.concatenate([image_batch.numpy() for image_batch in test_images_list], axis=0)
     test_masks = np.concatenate([mask_batch.numpy() for mask_batch in test_masks_list], axis=0)
+    test_images_list = list(test_dataset.map(lambda x, y: x))
+    test_masks_list = list(test_dataset.map(lambda x, y: y))
+    
+    test_images = np.concatenate([image_batch.numpy() for image_batch in test_images_list], axis=0)
+    test_masks = np.concatenate([mask_batch.numpy() for mask_batch in test_masks_list], axis=0)
 
     # Assuming test_labels are in one-hot encoded format
     test_labels = np.argmax(test_masks, axis=1)
@@ -187,7 +192,7 @@ if __name__ == "__main__":
     model_path = os.path.abspath(os.path.join("DeepLab", "2024-07-09-06-45", "Model_Data", "DeepLab_2024-07-09-06-45.keras"))
     print(f"Loading Model from Path: {model_path}")
     try:
-        # Load the saved DeepLab model
+        # Load the saved U-Net model
         model = tf.keras.models.load_model(model_path)
         print("Model loaded successfully.")
     except ValueError as e:
