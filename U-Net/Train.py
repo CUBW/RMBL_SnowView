@@ -196,8 +196,8 @@ if __name__ == "__main__":
     unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
     model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights)
     from Evalutation import evaluate_model
-    # date_str = datetime.datetime.now().strftime("%Y-%m-%d")
-    date_str  = "2024-07-08-15-02"
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    # date_str  = "2024-07-08-15-02"
     model_name = "U-Net" + "_" + date_str 
     save_path = "U-Net/" + date_str + "/results/"
     evaluate_model(model, history, train_dataset,val_dataset, test_dataset, save_path=model_name)
