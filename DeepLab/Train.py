@@ -56,7 +56,7 @@ def train_masks(train_dataset):
 
 def train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=100):
     # Define the learning rates and optimizer
-    start_lr = 0.0001
+    start_lr = 0.001
     end_lr = 1e-6
     decay_steps = len(train_dataset) * 400
 
@@ -133,5 +133,5 @@ if __name__ == "__main__":
     print(f"Class weights: {class_weights}")
     print("Training the model...")
     deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=3)
-    model, history = train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights, epochs=50)
-    evaluate_model(model, history, train_dataset,val_dataset, test_dataset)
+    model, history = train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights)
+    evaluate_model(model, history, train_dataset,val_dataset, test_dataset)  
