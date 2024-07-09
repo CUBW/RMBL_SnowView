@@ -172,3 +172,4 @@ data/
 
 gabor_filters/
 640_df.pkl
+*.keras
