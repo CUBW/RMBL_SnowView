@@ -60,28 +60,40 @@ def encoder_block(inputs , n_filters, dropout, l2):
     return conv, pool
 
 
+# def decoder_block(pool, skip_connection, n_filters, dropout, l2):
+#     """
+#     Function to create a decoder block with a Conv2DTranspose layer followed by a concatenation of the skip connections and a Conv2D layer.
+    
+#     Args:
+#     - conv: Tensor from the encoder block.
+#     - pool: Tensor from the encoder block.
+#     - n_filters: Number of filters for the Conv2D layer.
+#     - l2: L2 regularization strength.
+    
+#     Returns:
+#     - conv: Output tensor after applying the Conv2D layer.
+#     """
+    
+#     # Conv2DTranspose Layer
+#     upsample = Conv2DTranspose(n_filters, (2, 2), strides=(2, 2), padding='same', kernel_regularizer= tf.keras.regularizers.L2(l2))(pool)
+#     # Concatenate the skip connections
+#     concat = concatenate([upsample, skip_connection])
+    
+#     # Convolutional Block
+#     conv = conv_block(concat, n_filters, dropout, l2)
+#     return conv
+
 def decoder_block(pool, skip_connection, n_filters, dropout, l2):
-    """
-    Function to create a decoder block with a Conv2DTranspose layer followed by a concatenation of the skip connections and a Conv2D layer.
-    
-    Args:
-    - conv: Tensor from the encoder block.
-    - pool: Tensor from the encoder block.
-    - n_filters: Number of filters for the Conv2D layer.
-    - l2: L2 regularization strength.
-    
-    Returns:
-    - conv: Output tensor after applying the Conv2D layer.
-    """
-    
-    # Conv2DTranspose Layer
-    upsample = Conv2DTranspose(n_filters, (2, 2), strides=(2, 2), padding='same', kernel_regularizer= tf.keras.regularizers.L2(l2))(pool)
+    # Upsample using nearest neighbor and bilinear interpolation
+    upsample = UpSampling2D(size=(2, 2), interpolation='bilinear')(pool)
+    upsample = Conv2D(n_filters, (3, 3), padding='same', kernel_regularizer=tf.keras.regularizers.L2(l2))(upsample)
     # Concatenate the skip connections
     concat = concatenate([upsample, skip_connection])
-    
     # Convolutional Block
     conv = conv_block(concat, n_filters, dropout, l2)
     return conv
+
+
 
 
 def unet_model(n_classes, img_height, img_width, img_channels):

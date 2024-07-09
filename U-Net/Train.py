@@ -106,7 +106,7 @@ def train_masks(train_dataset):
 
 
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=1):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=20):
     model_name = "U-Net"
     # Define the learning rates and optimizer
     start_lr = 0.0001
@@ -187,6 +187,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
 
 
 if __name__ == "__main__":
+    from Evalutation import visualize_predictions
     dataset = Process()
     train_dataset, val_dataset, test_dataset = split_data(dataset)
     class_weights = train_masks(train_dataset)
@@ -195,8 +196,11 @@ if __name__ == "__main__":
     unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
     model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights)
     from Evalutation import evaluate_model
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
-    model_name = "U-Net" + "_" + date_str
-    evaluate_model(model, history, train_dataset,val_dataset, test_dataset, model_name=model_name)
+    # date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    date_str  = "2024-07-08-15-02"
+    model_name = "U-Net" + "_" + date_str 
+    save_path = "U-Net/" + date_str + "/results/"
+    evaluate_model(model, history, train_dataset,val_dataset, test_dataset, save_path=model_name)
+    visualize_predictions(train_dataset, model , num_examples=1, fileDir=save_path)
 
     
