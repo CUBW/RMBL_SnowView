@@ -188,4 +188,4 @@ data/Cut_Images
 *.tif
 data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif
 data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif.aux.xml
-
+*.keras
