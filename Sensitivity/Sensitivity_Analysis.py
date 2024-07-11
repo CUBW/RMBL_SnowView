@@ -9,11 +9,16 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from tqdm import tqdm
 
 # Hyperparameter lists
-PARAM_GRID = {
-    'n_estimators': [10, 20, 25, 30, 40],
-    'max_depth': [None, 5, 10, 20], # num features is 22
+param_grid = {
+    'n_estimators': [50, 100, 200, 300, 400],
+    'max_depth': [None, 10, 20, 30, 40],
     'min_samples_split': [2, 5, 10],
     'min_samples_leaf': [1, 2, 4],
+    'max_features': ['auto', 'sqrt', 'log2'],
+    'bootstrap': [True, False],
+    'criterion': ['gini', 'entropy'],
+    'class_weight': ['balanced', 'balanced_subsample', None],
+    'random_state': [42]  # Set your preferred random state for reproducibility
 }
 
 def format_time(seconds):
