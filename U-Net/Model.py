@@ -124,6 +124,9 @@ def unet_model(n_classes, img_height, img_width, img_channels):
     
     # Create the model
     model = Model(inputs=[inputs], outputs=[outputs])
+
+    print("Model summary to check everything with the dimensions:")
+    model.summary()
     return model
 
 
