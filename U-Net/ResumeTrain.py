@@ -93,6 +93,6 @@ def resume_training(model_checkpoint_path, model_name,epochs, start_lr=0.0001, e
 
 
 if __name__ == "__main__":
-    model_checkpoint_path = "checkpoints/U-Net_epoch_03.keras"
+    model_checkpoint_path = "checkpoints/U-Net_epoch_20.keras"
     model_name = "U-Net"
-    model, history = resume_training(model_checkpoint_path, model_name, 3)
+    model, history = resume_training(model_checkpoint_path, model_name, 32)
