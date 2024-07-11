@@ -86,9 +86,15 @@ def encoder_block(inputs , n_filters, dropout, l2):
 def decoder_block(pool, skip_connection, n_filters, dropout, l2):
     # Upsample using nearest neighbor and bilinear interpolation
     upsample = UpSampling2D(size=(2, 2), interpolation='bilinear')(pool)
+    print(f"Upsample shape: {upsample.shape}")
+    
     upsample = Conv2D(n_filters, (3, 3), padding='same', kernel_regularizer=tf.keras.regularizers.L2(l2))(upsample)
+    print(f"Conv2D after upsample shape: {upsample.shape}")
+    
     # Concatenate the skip connections
     concat = concatenate([upsample, skip_connection])
+    print(f"Concatenated shape: {concat.shape}")
+    
     # Convolutional Block
     conv = conv_block(concat, n_filters, dropout, l2)
     return conv
@@ -135,7 +141,11 @@ if __name__ == "__main__":
     model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
     # Compile the model with binary crossentropy loss and Adam optimizer
     model.compile(loss='binary_crossentropy', optimizer='adam')
+    
+    # Print model summary
+    model.summary()
+    
     print(f"Input shape: {model.input_shape}")
     print(f"Output shape: {model.output_shape}")
-    print(f"Trainable params: {np.sum([np.prod(v._shape) for v in model.trainable_variables])}")
+    print(f"Trainable params: {np.sum([np.prod(v.shape) for v in model.trainable_variables])}")
 

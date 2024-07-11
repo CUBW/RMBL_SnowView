@@ -106,7 +106,7 @@ def train_masks(train_dataset):
 
 
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=20):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=15, epochs=100):
     model_name = "U-Net"
     # Define the learning rates and optimizer
     start_lr = 0.0001
