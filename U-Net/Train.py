@@ -106,7 +106,7 @@ def train_masks(train_dataset):
 
 
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, batch_size=50, epochs=1):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, batch_size=10, epochs=1 ):
     print("batch size: ", batch_size)
     print("num of epochs: ", epochs)
     model_name = "U-Net"
@@ -169,7 +169,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, batch_size
 
     # Define the model name and directory for saving the final model
     
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+   
     final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     # print(f"Class weights: {class_weights}")
     print("Training the model...")
     unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset)
-    from Evalutation import evaluate
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
+    from Evalutation import evaluate
     evaluate(model_date = date_str, num_examples=1)
