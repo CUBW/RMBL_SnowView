@@ -7,7 +7,7 @@ import cv2
 import pickle
 IMG_HEIGHT = 640
 IMG_WIDTH = 640
-IMG_CHANNELS = 3
+IMG_CHANNELS = 4
 
 FILEPATH =  "../data/640_640_4.pkl" # update to match where you want it to go
 

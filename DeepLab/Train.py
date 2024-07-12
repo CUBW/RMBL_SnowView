@@ -54,8 +54,9 @@ def train_masks(train_dataset):
     return class_weights
 
 
-def train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=100):
+def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=1 ):
     # Define the learning rates and optimizer
+    model_name = "DeepLab"
     start_lr = 0.001
     end_lr = 1e-6
     decay_steps = len(train_dataset) * 400
@@ -87,7 +88,7 @@ def train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights
     checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    checkpoint_path = os.path.join(checkpoint_dir, "model_epoch_{epoch:02d}.keras")
+    checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_epoch_{{epoch:02d}}.keras")
 
     # Model checkpointing to save the best model based on validation loss
     callbacks = [tf.keras.callbacks.ModelCheckpoint(
@@ -105,9 +106,7 @@ def train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights
         callbacks=callbacks
     )
 
-    # Define the model name and directory for saving the final model
-    model_name = "DeepLab"
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    # Define the model name and directory for saving the final mode
     final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
@@ -129,9 +128,11 @@ def train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights
 if __name__ == "__main__":
     dataset = Process()
     train_dataset, val_dataset, test_dataset = split_data(dataset)
-    class_weights = train_masks(train_dataset)
-    print(f"Class weights: {class_weights}")
+    # class_weights = train_masks(train_dataset)
+    # print(f"Class weights: {class_weights}")
     print("Training the model...")
-    deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=3)
-    model, history = train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights)
-    evaluate_model(model, history, train_dataset,val_dataset, test_dataset)  
+    deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    model, history = train_model(deeplab, train_dataset, val_dataset, test_dataset, date_str)
+    from Evalutation import evaluate
+    evaluate(model_date = date_str, num_examples=1)
