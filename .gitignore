@@ -173,3 +173,16 @@ data/
 gabor_filters/
 640_df.pkl
 *.keras
+snow_venv/
+
+#dont want to see these things in this branch
+U-Net/U-Net/2024-07-10/results/prediction_0.png
+U-Net/U-Net/2024-07-10-10-18/Model_Data/history.json
+U-Net/U-Net/2024-07-10-10-18/results/prediction_0.png
+U-Net/U-Net/2024-07-10-10-18/results/prediction_1.png
+U-Net/U-Net/2024-07-10-10-18/results/prediction_2.png
+U-Net/U-Net/2024-07-10-10-18/results/prediction_3.png
+U-Net/U-Net/2024-07-10-10-18/results/training_validation_loss_accuracy.png
+U-Net/U-Net/2024-07-10-15-18/Model_Data/history.json
+U-Net/U-Net/2024-07-10-16-07/Model_Data/history.json
+U-Net/U-Net/2024-07-10-17-25/Model_Data/history.json
