@@ -10,7 +10,10 @@ from rasterio.plot import show
 from rasterio.warp import Resampling, reproject
 
 
-SOURCE_FILEPATH = "C:/Users/apfox/UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data" # update to match where your data is
+# SOURCE_FILEPATH = "C:/Users/apfox/UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data" # update to match where your data is
+SOURCE_FILEPATH = "/Users/joel-carlson/Library/CloudStorage/OneDrive-SharedLibraries-UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data"
+IMAGERY_FILEPATH = "/Users/joel-carlson/Library/CloudStorage/OneDrive-SharedLibraries-UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data/Imagery"
+SNOW_MASK_FILEPATH = "/Users/joel-carlson/Library/CloudStorage/OneDrive-SharedLibraries-UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data/Snow_Mask"
 DEST_FILEPATH = "data/640" # update to match where you want it to go
 
 def resample(source, target):

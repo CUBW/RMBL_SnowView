@@ -188,7 +188,15 @@ data/Cut_Images
 *.tif
 data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif
 data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif.aux.xml
+
 *.keras
-*.joblib
+*.png
+*.json
 *.pkl
-snow/
+*.joblib
+data/
+gabor_filters/
+snow_venv/
+*.exe
+*.bat
+*.sh
