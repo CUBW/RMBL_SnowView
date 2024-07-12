@@ -195,3 +195,4 @@ gabor_filters/
 snow_venv/
 *.exe
 *.bat
+*.sh
