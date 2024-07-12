@@ -185,9 +185,9 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
             save_plot(fig, filename, fileDir)
 
 
-def evaluate():
+def evaluate(model_date, num_examples=1):
     from Train import split_data
-    model_date = "2024-07-11-21-07"
+    
     # Use the entire model_date for referencing directories and files
 
     # Construct the absolute path for loading the model using the entire model_date
@@ -227,9 +227,9 @@ def evaluate():
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
         evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path)
-        visualize_predictions(train_dataset, model , num_examples=4, fileDir=save_path)
+        visualize_predictions(train_dataset, model , num_examples=num_examples, fileDir=save_path)
 
 
 if __name__ == "__main__":
-    evaluate()
+    evaluate(model_date = "2024-07-11-21-07",num_examples=1)
 

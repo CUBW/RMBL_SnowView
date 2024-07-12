@@ -106,7 +106,7 @@ def train_masks(train_dataset):
 
 
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=100):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, batch_size=50, epochs=1):
     print("batch size: ", batch_size)
     print("num of epochs: ", epochs)
     model_name = "U-Net"
@@ -155,9 +155,9 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
         save_freq='epoch',
     )]
     # Convert class_weights to dictionary if it's a numpy array
-    if isinstance(class_weights, np.ndarray):
-        print("Converting class weights to dictionary")
-        class_weights = {i: weight for i, weight in enumerate(class_weights)}
+    # if isinstance(class_weights, np.ndarray):
+    #     print("Converting class weights to dictionary")
+    #     class_weights = {i: weight for i, weight in enumerate(class_weights)}
     
     # Training the model with validation data
     history = model.fit(
@@ -191,14 +191,11 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weig
 if __name__ == "__main__":
     dataset = Process()
     train_dataset, val_dataset, test_dataset = split_data(dataset)
-    class_weights = train_masks(train_dataset)
-    print(f"Class weights: {class_weights}")
+    # class_weights = train_masks(train_dataset)
+    # print(f"Class weights: {class_weights}")
     print("Training the model...")
     unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights)
-    from Evalutation import evaluate_model, visualize_predictions
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
-    model_name = "U-Net" + "_" + date_str
-    save_path = "U-Net/" + date_str + "/results"
-    evaluate_model(model, history, train_dataset,val_dataset, test_dataset, save_path=save_path)
-    visualize_predictions(train_dataset, model, num_examples=3, fileDir=save_path)
+    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset)
+    from Evalutation import evaluate
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    evaluate(model_date = date_str, num_examples=1)
