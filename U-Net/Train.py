@@ -106,10 +106,9 @@ def train_masks(train_dataset):
 
 
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=56, epochs=10):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=100):
     print("batch size: ", batch_size)
     print("num of epochs: ", epochs)
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights, batch_size=15, epochs=100):
     model_name = "U-Net"
     # Define the learning rates and optimizer
     start_lr = 0.001
@@ -195,11 +194,11 @@ if __name__ == "__main__":
     class_weights = train_masks(train_dataset)
     print(f"Class weights: {class_weights}")
     print("Training the model...")
-    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
+    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
     model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, class_weights)
     from Evalutation import evaluate_model, visualize_predictions
     date_str = datetime.datetime.now().strftime("%Y-%m-%d")
     model_name = "U-Net" + "_" + date_str
     save_path = "U-Net/" + date_str + "/results"
-    evaluate_model(model, history, train_dataset,val_dataset, test_dataset, model_name=save_path)
+    evaluate_model(model, history, train_dataset,val_dataset, test_dataset, save_path=save_path)
     visualize_predictions(train_dataset, model, num_examples=3, fileDir=save_path)

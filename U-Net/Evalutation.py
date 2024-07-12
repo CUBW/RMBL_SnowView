@@ -125,7 +125,7 @@ def visualize(img, mask, pred_image, location=None, date=None):
         img = (img * 255).astype(np.uint8)  # Rescale if needed and convert to uint8
     
     # Display original image
-    axs[0, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    axs[0, 0].imshow(cv2.cvtColor(img[:,:,:3], cv2.COLOR_BGR2RGB))
     axs[0, 0].set_title('Original Image')
     axs[0, 0].axis('off')
 
@@ -188,7 +188,7 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
 if __name__ == "__main__":
     from Train import split_data
     # Construct the absolute path for loading the model
-    model_path = os.path.abspath(os.path.join("U-Net", "2024-07-10-10-18", "Model_Data", "U-Net_2024-07-10-10-18.keras"))
+    model_path = os.path.abspath(os.path.join("U-Net", "2024-07-11-16-53", "Model_Data", "U-Net_2024-07-11-16-53.keras"))
     print(f"Loading Model from Path: {model_path}")
     try:
         # Load the saved U-Net model
@@ -199,10 +199,10 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An unexpected error occurred while loading the model: {e}")
 
-    save_path = "U-Net/2024-07-10-10-18/results/"
+    save_path = "U-Net/2024-07-11-16-53/results/"
 
     # Path to the history file
-    history_path = os.path.abspath(os.path.join("U-Net", "2024-07-10-10-18", "Model_Data", "history.json"))
+    history_path = os.path.abspath(os.path.join("U-Net", "2024-07-11-16-53", "Model_Data", "history.json"))
     
     try:
         history = load_history(history_path)
@@ -223,4 +223,4 @@ if __name__ == "__main__":
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
         evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path)
-        visualize_predictions(train_dataset, model , num_examples=4, fileDir="U-Net/2024-07-10-10-18/results")
+        visualize_predictions(train_dataset, model , num_examples=4, fileDir="U-Net/2024-07-11-16-53/results")
