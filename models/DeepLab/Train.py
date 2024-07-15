@@ -1,7 +1,6 @@
-from Model import DeepLabV3Plus
-from Utils import split_data
-from Processing import Process
-from Evaluation import evaluate_model
+from .Model import DeepLabV3Plus
+from utils.Processing import split_data, Process
+from utils.Evaluation import evaluate_model
 
 
 import json
@@ -85,7 +84,7 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
     )
 
     # Directory for checkpoints
-    checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
+    checkpoint_dir = os.path.join(os.getcwd(), "models/DeepLab/checkpoints")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
     checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_epoch_{{epoch:02d}}.keras")
@@ -105,9 +104,9 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
         epochs=epochs, 
         callbacks=callbacks
     )
-
+    
     # Define the model name and directory for saving the final mode
-    final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
+    final_model_dir = os.path.join(os.getcwd(),"models", model_name, model_name, date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
         os.makedirs(final_model_dir)
@@ -134,5 +133,5 @@ if __name__ == "__main__":
     deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=4)
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
     model, history = train_model(deeplab, train_dataset, val_dataset, test_dataset, date_str)
-    from Evalutation import evaluate
-    evaluate(model_date = date_str, num_examples=1)
+    from utils.Evalutation import evaluate
+    evaluate(model_date = date_str,model_name = "DeepLab", num_examples=1)

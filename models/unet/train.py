@@ -93,7 +93,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
     # Define the model name and directory for saving the final model
     
    
-    final_model_dir = os.path.join(os.getcwd(),"models/unet/" ,model_name, date_str, "Model_Data")
+    final_model_dir = os.path.join(os.getcwd(),"models/unet/",model_name, date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
         os.makedirs(final_model_dir)
@@ -121,4 +121,4 @@ if __name__ == "__main__":
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
     model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
     from utils.Evaluation import evaluate
-    evaluate(model_date =date_str, num_examples=1)
+    evaluate(model_date =date_str, model_name="unet", num_examples=1)

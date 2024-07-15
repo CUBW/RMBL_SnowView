@@ -187,12 +187,14 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
             print(f"Prediction {i} saved in {fileDir}/{filename}")
 
 
-def evaluate(model_date, num_examples=1):
+def evaluate(model_date, model_name, num_examples=1):
     print(f"Evaluating model from date: {model_date} with {num_examples} examples") 
     # Use the entire model_date for referencing directories and files
 
     # Construct the absolute path for loading the model using the entire model_date
-    model_path = os.path.abspath(os.path.join("models/unet","U-Net", model_date, "Model_Data", f"U-Net_{model_date}.keras"))
+    path =  f"models/{model_name}/Previous/{model_date}/"
+    results_path = os.path.join(path,"results")
+    model_path = os.path.abspath(os.path.join(path, "Model_Data", f"{model_name}_{model_date}.keras"))
     print(f"Loading Model from Path: {model_path}")
     try:
         # Load the saved U-Net model
@@ -202,12 +204,10 @@ def evaluate(model_date, num_examples=1):
         print(f"File not found error: {e}")
     except Exception as e:
         print(f"An unexpected error occurred while loading the model: {e}")
-
-    # Use the entire model_date for save_path
-    save_path = f"models/unet/U-Net/{model_date}/results/"
+    
 
     # Path to the history file using the entire model_date
-    history_path = os.path.abspath(os.path.join("models/unet","U-Net", model_date, "Model_Data", "history.json"))
+    history_path = os.path.abspath(os.path.join(path,"Model_Data", "history.json"))
     
     try:
         history = load_history(history_path)
@@ -227,14 +227,15 @@ def evaluate(model_date, num_examples=1):
         # Load the processed dataset
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
-        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path)
-        visualize_predictions(train_dataset, model , num_examples=num_examples, fileDir=save_path)
+        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, results_path)
+        visualize_predictions(train_dataset, model , num_examples=num_examples, fileDir=results_path)
 
 
 if __name__ == "__main__":
     import argparse
     # Set up argument parsing
     parser = argparse.ArgumentParser(description="Evaluate the model with given date and number of examples.")
+    parser.add_argument('--name', type = str, required=True, help = "The name of the model that is being evaluated ex: unet")
     parser.add_argument('-md', type=str, required=True, help='The date of the model to evaluate (format: YYYY-MM-DD-HH-MM).')
     parser.add_argument('-n', type=int, required=True, help='The number of examples to use for evaluation.')
 
@@ -242,5 +243,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Call the evaluate function with parsed arguments
-    evaluate(model_date=args.md, num_examples=args.n)
+    evaluate(model_date=args.md, model_name= args.name, num_examples=args.n)
 
