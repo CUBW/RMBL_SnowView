@@ -4,7 +4,6 @@ import os
 import time
 import pickle
 
-from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.experimental import enable_halving_search_cv  #noqa
 from sklearn.model_selection import HalvingGridSearchCV
@@ -53,11 +52,11 @@ def perfom_halving_rand_search(X, y, clf, save_results=True):
         "max_depth": [None, 20, 30, 40],
         "min_samples_split": [2, 5, 10],
         "min_samples_leaf": [1, 2, 4],
-        "max_features": ["auto", "sqrt", "log2"],
+        "max_features": ["sqrt", "log2"],
         "criterion": ["gini", "entropy"],
     }
 
-    # make rand search
+    # make grid search
     rsh = HalvingGridSearchCV(
         estimator=clf, 
         param_grid=param_distributions, 
@@ -147,7 +146,8 @@ if __name__ == "__main__":
     print("Rand Search saved at 'results/HalvingGridSearch.pkl'")
     print(f"Time taken: {format_time(time.time()-start_time)}")
 
-    # perform analysis
+    
     print("Performing analysis...")
+    # perform analysis
     perform_analysis(rsh)
     print("Analysis performed.")
