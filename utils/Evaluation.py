@@ -183,6 +183,8 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
         if fileDir:
             filename = f'prediction_{i}.png'
             save_plot(fig, filename, fileDir)
+            # saved plot to
+            print(f"Prediction {i} saved in {fileDir}/{filename}")
 
 
 def evaluate(model_date, num_examples=1):
