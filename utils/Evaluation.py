@@ -122,7 +122,7 @@ def visualize(img, mask, pred_image, location=None, date=None):
     # Ensure img is a numpy array and convert depth to uint8
     img = np.array(img)
     if img.dtype != np.uint8:
-        img = (img * 255).astype(np.uint8)  # Rescale if needed and convert to uint8
+        img = np.round(img).astype(np.uint8)  # Rescale if needed and convert to uint8
     
     # Display original image
     axs[0, 0].imshow(cv2.cvtColor(img[:,:,:3], cv2.COLOR_BGR2RGB))
@@ -202,7 +202,7 @@ def evaluate(model_date, num_examples=1):
         print(f"An unexpected error occurred while loading the model: {e}")
 
     # Use the entire model_date for save_path
-    save_path = f"U-Net/{model_date}/results/"
+    save_path = f"models/unet/U-Net/{model_date}/results/"
 
     # Path to the history file using the entire model_date
     history_path = os.path.abspath(os.path.join("models/unet","U-Net", model_date, "Model_Data", "history.json"))

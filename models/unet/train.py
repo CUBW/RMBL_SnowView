@@ -65,7 +65,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
                 )
 
     # Directory for checkpoints
-    checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
+    checkpoint_dir = os.path.join(os.getcwd(), "models/unet/checkpoints")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
     checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_epoch_{{epoch:02d}}.keras")
@@ -112,13 +112,13 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
 
 
 if __name__ == "__main__":
-    # dataset = Process()
-    # train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # # class_weights = train_masks(train_dataset)
-    # # print(f"Class weights: {class_weights}")
-    # print("Training the model...")
-    # unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    # date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    # model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
+    dataset = Process()
+    train_dataset, val_dataset, test_dataset = split_data(dataset)
+    # class_weights = train_masks(train_dataset)
+    # print(f"Class weights: {class_weights}")
+    print("Training the model...")
+    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
     from utils.Evaluation import evaluate
-    evaluate(model_date = "2024-07-08-15-02", num_examples=1)
+    evaluate(model_date = "2024-07-11-21-07", num_examples=1)
