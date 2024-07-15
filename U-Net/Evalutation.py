@@ -187,7 +187,7 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
 
 def evaluate(model_date, num_examples=1):
     from Train import split_data
-    
+    print(f"Evaluating model from date: {model_date} with {num_examples} examples") 
     # Use the entire model_date for referencing directories and files
 
     # Construct the absolute path for loading the model using the entire model_date
@@ -231,5 +231,15 @@ def evaluate(model_date, num_examples=1):
 
 
 if __name__ == "__main__":
-    evaluate(model_date = "2024-07-11-21-07",num_examples=1)
+    import argparse
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(description="Evaluate the model with given date and number of examples.")
+    parser.add_argument('-md', type=str, required=True, help='The date of the model to evaluate (format: YYYY-MM-DD-HH-MM).')
+    parser.add_argument('-n', type=int, required=True, help='The number of examples to use for evaluation.')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Call the evaluate function with parsed arguments
+    evaluate(model_date=args.md, num_examples=args.n)
 
