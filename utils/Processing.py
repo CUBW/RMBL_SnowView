@@ -1,15 +1,18 @@
 
 import numpy as np
-from Model import unet_model
 import tensorflow as tf
-import os
+from sklearn.utils.class_weight import compute_class_weight
+import random
 import cv2
+import os
 import pickle
 IMG_HEIGHT = 640
 IMG_WIDTH = 640
 IMG_CHANNELS = 3
 
-FILEPATH =  "../data/640_640_4.pkl" # update to match where you want it to go
+# Dynamically construct the absolute path to the data file
+FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '640_640_4.pkl')
+
 
 
 
@@ -30,13 +33,7 @@ def parse_img_mask(image_path, mask_path):
     
 
 
-# Function to create a dataset from images and masks
-# def create_dataset(image_paths, mask_paths):
-#     dataset = []
-#     for image_path, mask_path in zip(image_paths, mask_paths):
-#         image, mask = parse_img_mask(os.path.join(FILEPATH, image_path), os.path.join(FILEPATH, mask_path))
-#         dataset.append((image, mask))
-#     return dataset
+
 
 def create_dataset(filepath):
     # open pkl file
@@ -48,20 +45,93 @@ def create_dataset(filepath):
         dataset.append((image, mask))
     
     return dataset
-    
-    
 
-# Function to process the dataset
+def list_to_tf_dataset(data_list):
+    '''
+    Converts a list-based dataset to a TensorFlow Dataset.
+    '''
+    images, masks = zip(*data_list)
+    tf_dataset = tf.data.Dataset.from_tensor_slices((list(images), list(masks)))
+    return tf_dataset
+
+
+def split_data(dataset, train_size=0.8, val_size=0.1, test_size=0.1):
+    '''
+    Split the data into training, validation, and test sets.
+
+    Args:
+        dataset: The dataset to be split as a list of tuples (image, mask).
+        train_size: The proportion of data to include in the training set.
+        val_size: The proportion of data to include in the validation set.
+        test_size: The proportion of data to include in the test set.
+
+    Returns:
+        train_dataset: List of tuples for the training set.
+        val_dataset: List of tuples for the validation set.
+        test_dataset: List of tuples for the test set.
+    '''
+
+    # Shuffle dataset
+    random.shuffle(dataset)
+    
+    length = len(dataset)
+    
+    # Determine the sizes of training, validation, and test sets
+    train_size = int(length * train_size)
+    val_size = int(length * val_size)
+    test_size = int(length * test_size)
+    
+    # print("Size of training set: ", train_size)
+    # print("Size of validation set: ", val_size)
+    # print("Size of test set: ", test_size)
+    
+    train_dataset = dataset[:train_size]
+    val_dataset = dataset[train_size:train_size+val_size]
+    test_dataset = dataset[train_size+val_size:train_size+val_size+test_size]
+    
+    print("Data split successfully")
+    return list_to_tf_dataset(train_dataset), list_to_tf_dataset(val_dataset), list_to_tf_dataset(test_dataset)
+
+
+
+
+def train_masks(train_dataset):
+    print("Computing class weights...")
+    '''
+    This function computes class weights for training the masks using a TensorFlow dataset.
+
+    Args:
+        train_dataset: TensorFlow Dataset of tuples (image, mask) for training the masks.
+
+    Returns:
+        class_weights: Array of class weights based on the distribution of class labels in the masks.
+    '''
+    class_labels = []  # List to store all class labels from masks
+
+    # Extract class labels from masks in the dataset
+    for image, mask in train_dataset:
+        flat_mask = tf.reshape(mask, [-1])  # Flatten the mask
+        unique_labels = tf.unique(flat_mask)[0].numpy()  # Extract unique labels
+        class_labels.extend(unique_labels)
+    
+    # Calculate class weights based on class imbalance
+    class_weights = compute_class_weight(class_weight="balanced", classes=np.unique(class_labels), y=class_labels)
+    print("Class weights computed successfully")
+    return class_weights
+
+
+
 def Process():
-    # image_files = [file for file in os.listdir(FILEPATH) if file.endswith('snow.tif')]
-    # mask_files = [file for file in os.listdir(FILEPATH) if file.endswith('snowbinary.tif')]
-
-    # image_files.sort()  # Sort image files
-    # mask_files.sort()  # Sort mask files
+    '''
+    This function creates a dataset from the images and masks stored in the specified directory.
+    It also inspects the dataset by displaying the shape of the first few images and masks.
     
-    # print(len(image_files))
-    # print("Creating dataset...")
-    # dataset = create_dataset(image_files, mask_files)
+    Returns: 
+        dataset: List of tuples (image, mask) created from the images and masks
+            Returned and then split where called after in above functions
+    
+    
+    '''
     dataset = create_dataset(FILEPATH)
     print("Dataset created successfully with {} images".format(len(dataset)))
 
@@ -74,13 +144,12 @@ def Process():
             print("Mask Shape:", mask.shape)
 
     return dataset
-    
+
 
 
 if __name__ == "__main__":
-#    print(os.listdir(FILEPATH))
     import os
-    # print(os.path.exists(FILEPATH))  # This should print True if the file exists
+    print("looking at: ", FILEPATH)
     Process()
     
     

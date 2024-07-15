@@ -1,5 +1,5 @@
-from Model import unet_model
-from Processing import Process
+from .Model import unet_model
+from utils.Processing import Process, split_data
 
 
 
@@ -7,7 +7,7 @@ import tensorflow as tf
 import os
 from sklearn.model_selection import train_test_split
 import tensorflow_datasets as tfds
-from sklearn.utils.class_weight import compute_class_weight
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
@@ -25,83 +25,6 @@ def save_history(history, filename):
     """
     with open(filename, 'w') as f:
         json.dump(history.history, f)
-
-
-
-def list_to_tf_dataset(data_list):
-    '''
-    Converts a list-based dataset to a TensorFlow Dataset.
-    '''
-    images, masks = zip(*data_list)
-    tf_dataset = tf.data.Dataset.from_tensor_slices((list(images), list(masks)))
-    return tf_dataset
-
-
-def split_data(dataset, train_size=0.8, val_size=0.1, test_size=0.1):
-    '''
-    Split the data into training, validation, and test sets.
-
-    Args:
-        dataset: The dataset to be split as a list of tuples (image, mask).
-        train_size: The proportion of data to include in the training set.
-        val_size: The proportion of data to include in the validation set.
-        test_size: The proportion of data to include in the test set.
-
-    Returns:
-        train_dataset: List of tuples for the training set.
-        val_dataset: List of tuples for the validation set.
-        test_dataset: List of tuples for the test set.
-    '''
-
-    # Shuffle dataset
-    random.shuffle(dataset)
-    
-    length = len(dataset)
-    
-    # Determine the sizes of training, validation, and test sets
-    train_size = int(length * train_size)
-    val_size = int(length * val_size)
-    test_size = int(length * test_size)
-    
-    # print("Size of training set: ", train_size)
-    # print("Size of validation set: ", val_size)
-    # print("Size of test set: ", test_size)
-    
-    train_dataset = dataset[:train_size]
-    val_dataset = dataset[train_size:train_size+val_size]
-    test_dataset = dataset[train_size+val_size:train_size+val_size+test_size]
-    
-    print("Data split successfully")
-    return list_to_tf_dataset(train_dataset), list_to_tf_dataset(val_dataset), list_to_tf_dataset(test_dataset)
-
-
-
-
-
-def train_masks(train_dataset):
-    print("Computing class weights...")
-    '''
-    This function computes class weights for training the masks using a TensorFlow dataset.
-
-    Args:
-        train_dataset: TensorFlow Dataset of tuples (image, mask) for training the masks.
-
-    Returns:
-        class_weights: Array of class weights based on the distribution of class labels in the masks.
-    '''
-    class_labels = []  # List to store all class labels from masks
-
-    # Extract class labels from masks in the dataset
-    for image, mask in train_dataset:
-        flat_mask = tf.reshape(mask, [-1])  # Flatten the mask
-        unique_labels = tf.unique(flat_mask)[0].numpy()  # Extract unique labels
-        class_labels.extend(unique_labels)
-    
-    # Calculate class weights based on class imbalance
-    class_weights = compute_class_weight(class_weight="balanced", classes=np.unique(class_labels), y=class_labels)
-    print("Class weights computed successfully")
-    return class_weights
-    
     
 
 
@@ -189,13 +112,13 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
 
 
 if __name__ == "__main__":
-    dataset = Process()
-    train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # class_weights = train_masks(train_dataset)
-    # print(f"Class weights: {class_weights}")
-    print("Training the model...")
-    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
-    from Evalutation import evaluate
-    evaluate(model_date = date_str, num_examples=1)
+    # dataset = Process()
+    # train_dataset, val_dataset, test_dataset = split_data(dataset)
+    # # class_weights = train_masks(train_dataset)
+    # # print(f"Class weights: {class_weights}")
+    # print("Training the model...")
+    # unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    # date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    # model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
+    from utils.Evaluation import evaluate
+    evaluate(model_date = "2024-07-08-15-02", num_examples=1)

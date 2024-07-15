@@ -8,7 +8,7 @@ import json
 import cv2
 import random
 
-from utils.Processing import Process  
+from utils.Processing import Process, split_data 
 
 
 def save_plot(fig, filename, fileDir):
@@ -186,12 +186,11 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
 
 
 def evaluate(model_date, num_examples=1):
-    from Train import split_data
     print(f"Evaluating model from date: {model_date} with {num_examples} examples") 
     # Use the entire model_date for referencing directories and files
 
     # Construct the absolute path for loading the model using the entire model_date
-    model_path = os.path.abspath(os.path.join("U-Net", model_date, "Model_Data", f"U-Net_{model_date}.keras"))
+    model_path = os.path.abspath(os.path.join("models/unet","U-Net", model_date, "Model_Data", f"U-Net_{model_date}.keras"))
     print(f"Loading Model from Path: {model_path}")
     try:
         # Load the saved U-Net model
@@ -206,7 +205,7 @@ def evaluate(model_date, num_examples=1):
     save_path = f"U-Net/{model_date}/results/"
 
     # Path to the history file using the entire model_date
-    history_path = os.path.abspath(os.path.join("U-Net", model_date, "Model_Data", "history.json"))
+    history_path = os.path.abspath(os.path.join("models/unet","U-Net", model_date, "Model_Data", "history.json"))
     
     try:
         history = load_history(history_path)
