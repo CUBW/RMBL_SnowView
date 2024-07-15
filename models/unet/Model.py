@@ -141,7 +141,7 @@ def unet_model(n_classes, img_height, img_width, img_channels):
 
 if __name__ == "__main__":
     # Create the U-Net model for binary segmentation
-    model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=3)
+    model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
     # Compile the model with binary crossentropy loss and Adam optimizer
     model.compile(loss='binary_crossentropy', optimizer='adam')
     
