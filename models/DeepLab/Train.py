@@ -1,5 +1,5 @@
 from Model import DeepLabV3Plus
-from utils.Processing import split_data
+from Processing import split_data
 from Processing import Process
 from Evaluation import evaluate_model
 

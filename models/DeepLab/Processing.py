@@ -11,12 +11,12 @@ IMG_HEIGHT = 640
 IMG_WIDTH = 640
 IMG_CHANNELS = 4
 
-FILEPATH =  "../data/640_640_4.pkl" # update to match where you want it to go
+FILEPATH =  "../../data/640_640_4.pkl" # update to match where you want it to go
 
 
 
 # Dynamically construct the absolute path to the data file
-FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '640_640_4.pkl')
+FILEPATH = os.path.join(os.path.dirname(__file__), '..','..', 'data', '640_640_4.pkl')
 
 
 
