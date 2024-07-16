@@ -1,5 +1,6 @@
 
 import numpy as np
+from Model import DeepLabV3Plus
 import tensorflow as tf
 from sklearn.utils.class_weight import compute_class_weight
 import random
@@ -8,7 +9,11 @@ import os
 import pickle
 IMG_HEIGHT = 640
 IMG_WIDTH = 640
-IMG_CHANNELS = 3
+IMG_CHANNELS = 4
+
+FILEPATH =  "../data/640_640_4.pkl" # update to match where you want it to go
+
+
 
 # Dynamically construct the absolute path to the data file
 FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '640_640_4.pkl')
@@ -42,7 +47,9 @@ def create_dataset(filepath):
     
     dataset = []
     for image, mask in zip(images, masks):
+    for image, mask in zip(images, masks):
         dataset.append((image, mask))
+    
     
     return dataset
 
