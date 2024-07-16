@@ -4,7 +4,8 @@
 
 # modified code for model to work for our specific use case
 
-import keras
+import tensorflow as tf
+from tensorflow import keras
 from keras import layers, models
 
 def convolution_block(block_input, num_filters=256, kernel_size=3, dilation_rate=1, use_bias=False):
