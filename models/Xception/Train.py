@@ -1,7 +1,7 @@
-from Model import xception_model
-from Utils import split_data
-from Processing import Process
-from Evaluation import evaluate_model
+from .Model import xception_model
+
+from utils.Processing import split_data
+from utils.Evaluation import evaluate
 
 
 import json
