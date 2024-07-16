@@ -66,7 +66,7 @@ def save_model(model,filename):
 
 def save_metrics(accuracy, confusion, precision, recall, f1, report, filename):
     """
-    Saves the evaluation metrics to a CSV file.
+    Saves the evaluation metrics to a txt file.
 
     Parameters:
     accuracy (float): The accuracy of the model.
@@ -80,15 +80,15 @@ def save_metrics(accuracy, confusion, precision, recall, f1, report, filename):
     Returns:
     None
     """
-    metrics = {
-        'accuracy': accuracy,
-        'confusion': confusion,
-        'precision': precision,
-        'recall': recall,
-        'f1': f1,
-        'report': report
-    }
-    pd.DataFrame(metrics).to_csv(os.path.join(OUTPUT_DIR, filename))
+    # open txt file
+    with open(os.path.join(OUTPUT_DIR, filename), 'w') as file:
+        # write metrics to file
+        file.write(f'Accuracy: {accuracy}\n')
+        file.write(f'Confusion Matrix:\n{confusion}\n')
+        file.write(f'Precision: {precision}\n')
+        file.write(f'Recall: {recall}\n')
+        file.write(f'F1 Score: {f1}\n')
+        file.write(f'Report:\n{report}\n')
 
 if __name__ == '__main__':
     # create output directory
