@@ -200,3 +200,9 @@ snow_venv/
 *.exe
 *.bat
 *.sh
+*.exe
+*.cfg
+*.bat
+*.ps1
+snow_venv/share/man/man1/ttx.1
+snow_venv/Scripts/activate
