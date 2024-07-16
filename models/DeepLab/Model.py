@@ -5,8 +5,7 @@
 # modified code for model to work for our specific use case
 
 import keras
-import tensorflow as tf
-from keras import layers
+from keras import layers, models
 
 def convolution_block(block_input, num_filters=256, kernel_size=3, dilation_rate=1, use_bias=False):
     """
@@ -65,8 +64,8 @@ def DeepLabV3Plus(n_classes, img_height, img_width, img_channels):
         keras.Model: The DeepLabV3Plus model.
     """
     model_input = keras.Input(shape=(img_height, img_width, img_channels))
-    preprocessed = tf.keras.applications.resnet50.preprocess_input(model_input)
-    resnet50 = tf.keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=preprocessed)
+    preprocessed = keras.applications.resnet50.preprocess_input(model_input)
+    resnet50 = keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=preprocessed)
     x = resnet50.get_layer("conv4_block6_2_relu").output
     x = DilatedSpatialPyramidPooling(x)
 
@@ -83,9 +82,8 @@ def DeepLabV3Plus(n_classes, img_height, img_width, img_channels):
     return keras.Model(inputs=model_input, outputs=model_output)
 
 if __name__ == "__main__":
-    model = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    model = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=3)
     print(f"Input shape: {model.input_shape}")
     print(f"Output shape: {model.output_shape}")
     print(f"Trainable params: {model.count_params()}")
     # print(f"Model Summary: {model.summary()}")
-    
