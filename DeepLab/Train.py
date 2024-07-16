@@ -132,6 +132,6 @@ if __name__ == "__main__":
     class_weights = train_masks(train_dataset)
     print(f"Class weights: {class_weights}")
     print("Training the model...")
-    deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=3)
+    deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=4)
     model, history = train_model(deeplab, train_dataset, val_dataset, test_dataset, class_weights)
     evaluate_model(model, history, train_dataset,val_dataset, test_dataset)  
