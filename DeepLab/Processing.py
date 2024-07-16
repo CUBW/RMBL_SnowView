@@ -47,7 +47,6 @@ def create_dataset(filepath):
     
     dataset = []
     for image, mask in zip(images, masks):
-    for image, mask in zip(images, masks):
         dataset.append((image, mask))
     
     
