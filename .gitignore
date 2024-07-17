@@ -177,7 +177,6 @@ cv2_resize.ipynb
 *.tif
 
 *.keras
-*.png
 *.json
 *.pkl
 *.joblib

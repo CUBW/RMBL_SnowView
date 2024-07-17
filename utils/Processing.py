@@ -11,7 +11,7 @@ IMG_WIDTH = 640
 IMG_CHANNELS = 3
 
 # Dynamically construct the absolute path to the data file
-FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '640_640_4.pkl')
+FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '640_640_4_aug.pkl')
 
 
 

@@ -1,8 +1,6 @@
 from .Model import unet_model
 from utils.Processing import Process, split_data
 
-
-
 import tensorflow as tf
 import os
 from sklearn.model_selection import train_test_split
@@ -27,12 +25,10 @@ def save_history(history, filename):
         json.dump(history.history, f)
     
 
-
-
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, batch_size=10, epochs=1 ):
+def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, batch_size=20, epochs=60):
     print("batch size: ", batch_size)
     print("num of epochs: ", epochs)
-    model_name = "U-Net"
+    model_name = "unet"
     # Define the learning rates and optimizer
     start_lr = 0.001
     end_lr = 1e-4
@@ -93,7 +89,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
     # Define the model name and directory for saving the final model
     
    
-    final_model_dir = os.path.join(os.getcwd(),"models/unet/",model_name, date_str, "Model_Data")
+    final_model_dir = os.path.join(os.getcwd(),"models",model_name, "Previous". date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
         os.makedirs(final_model_dir)
@@ -112,13 +108,14 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
 
 
 if __name__ == "__main__":
-    dataset = Process()
-    train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # class_weights = train_masks(train_dataset)
-    # print(f"Class weights: {class_weights}")
-    print("Training the model...")
-    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
+    # dataset = Process()
+    # train_dataset, val_dataset, test_dataset = split_data(dataset)
+    # # class_weights = train_masks(train_dataset)
+    # # print(f"Class weights: {class_weights}")
+    # print("Training the model...")
+    # unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    # date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    # model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
+    date_str = "2024-07-16-16-28"
     from utils.Evaluation import evaluate
     evaluate(model_date =date_str, model_name="unet", num_examples=1)
