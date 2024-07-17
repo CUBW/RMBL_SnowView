@@ -52,7 +52,7 @@ def train_masks(train_dataset):
     return class_weights
 
 
-def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=1 ):
+def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=10 ):
     # Define the learning rates and optimizer
     model_name = "DeepLab"
     start_lr = 0.001
