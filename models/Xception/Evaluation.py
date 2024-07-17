@@ -1,35 +1,36 @@
+from Processing import Process  # Assuming this is where necessary classes are imported
+
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
 import os
-from datetime import datetime
 import tensorflow as tf
 import json
 import cv2
 import random
 
-from Processing import Process  # Assuming this is where necessary classes are imported
+from datetime import datetime
+from sklearn.metrics import confusion_matrix
 
 
-def save_plot(fig, filename, fileDir):
+def save_plot(plt, filename, model_name, date_str = datetime.now().strftime("%Y-%m-%d") ):
     """
     Save the plot to a file with a structured directory based on model name and current date.
     
     Args:
-    - fig: The plot object to save.
+    - plt: The plot object to save.
     - filename: The filename template to save the plot to.
-    - fileDir: The name of the model for directory structuring.
+    - model_name: The name of the model for directory structuring.
 
     Result:
-        plot is saved in: /model/{model_name}/{current_date}/results/{filename}
-        model is saved in: /model/{model_name}/{current_date}/Model_Data/{filename}
+    plot is saved in: /model/{model_name}/{current_date}/results/{filename}
+    model is saved in: /model/{model_name}/{current_date}/Model_Data/{filename}
     """
-    # if directory is not created, create it
-    if not os.path.exists(fileDir):
-        os.makedirs(fileDir)
-    full_filepath = os.path.join(fileDir, filename)
-    fig.savefig(full_filepath)
-    plt.close(fig)
+    directory = os.path.join(model_name, date_str,"results")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    full_filepath = os.path.join(directory, filename)
+    plt.savefig(full_filepath)
+    plt.close()
 
 
 def load_history(filename):
@@ -47,7 +48,7 @@ def load_history(filename):
     return history_dict
 
 
-def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path):
+def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name):
     # Print type and content of history for debugging
 
     if not isinstance(history, dict):
@@ -70,7 +71,7 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, sav
     epochs = range(1, len(loss) + 1)
 
     # Plot training & validation loss and accuracy
-    fig = plt.figure(figsize=(20, 5))
+    plt.figure(figsize=(20, 5))
 
     plt.subplot(1, 2, 1)
     plt.plot(epochs, loss, label='Training loss')
@@ -89,18 +90,24 @@ def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, sav
     plt.legend()
 
     # Save plot
-    save_plot(fig, 'training_validation_loss_accuracy.png', save_path)
+    save_plot(plt, 'training_validation_loss_accuracy.png', model_name)
 
     # Show plot on screen (if running in an environment that supports plotting)
     plt.show()
 
+    # # Evaluate on training dataset
+    # train_loss = model.evaluate(train_dataset.batch(8))[0]
+    # # Evaluate on validation dataset
+    # val_loss_eval = model.evaluate(val_dataset.batch(8))[0]
+    # # Evaluate on test dataset
+    # test_loss = model.evaluate(test_dataset.batch(8))[0]
+
+    # print(f"Train loss: {train_loss}")
+    # print(f"Validation loss: {val_loss_eval}")
+    # print(f"Test loss: {test_loss}")
+
     # Generate predictions and confusion matrix
     predictions = model.predict(test_dataset.batch(8))
-    test_images_list = list(test_dataset.map(lambda x, y: x))
-    test_masks_list = list(test_dataset.map(lambda x, y: y))
-    
-    test_images = np.concatenate([image_batch.numpy() for image_batch in test_images_list], axis=0)
-    test_masks = np.concatenate([mask_batch.numpy() for mask_batch in test_masks_list], axis=0)
     test_images_list = list(test_dataset.map(lambda x, y: x))
     test_masks_list = list(test_dataset.map(lambda x, y: y))
     
@@ -128,6 +135,9 @@ def visualize(img, mask, pred_image, location=None, date=None):
     img = np.array(img)
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)  # Rescale if needed and convert to uint8
+    
+    if pred_image.dtype != np.uint8:
+        img = (img * 255).astype(np.uint8)
     
     # Display original image
     axs[0, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
@@ -161,7 +171,8 @@ def visualize(img, mask, pred_image, location=None, date=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
+
+    return plt
 
 
 
@@ -174,25 +185,24 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
     imgs_array = np.array(imgs)
     
     predictions = model.predict(imgs_array)
-    print(np.unique(predictions[0], return_counts=True))
-    
-
     
     
     for i, (img, mask) in enumerate(samples):
-        fig = visualize(img, mask, predictions[i], location, date)
+        plt = visualize(img, mask, predictions[i], location, date)
         if fileDir:
-            filename = f'prediction_{i}.png'
-            save_plot(fig, filename, fileDir)
+            save_plot(plt, f'prediction_{i}.png', fileDir)
+
+
 
 
 if __name__ == "__main__":
     from Train import split_data
+
     # Construct the absolute path for loading the model
-    model_path = os.path.abspath(os.path.join("DeepLab", "2024-07-09-06-45", "Model_Data", "DeepLab_2024-07-09-06-45.keras"))
+    model_path = os.path.abspath(os.path.join("Xception", "2024-07-03-10-58", "Model_Data", "Xception_2024-07-03-10-58.keras"))
     print(f"Loading Model from Path: {model_path}")
     try:
-        # Load the saved U-Net model
+        # Load the saved Xception model
         model = tf.keras.models.load_model(model_path)
         print("Model loaded successfully.")
     except ValueError as e:
@@ -200,10 +210,10 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An unexpected error occurred while loading the model: {e}")
 
-    save_path = "DeepLab/2024-07-09-06-45/results/"
+    model_name = "Xception"
 
     # Path to the history file
-    history_path = os.path.abspath(os.path.join("DeepLab", "2024-07-09-06-45", "Model_Data", "history.json"))
+    history_path = os.path.abspath(os.path.join("Xception", "2024-07-03-10-58", "Model_Data", "history.json"))
     
     try:
         history = load_history(history_path)
@@ -223,5 +233,5 @@ if __name__ == "__main__":
         # Load the processed dataset
         dataset = Process()
         train_dataset, val_dataset, test_dataset = split_data(dataset)
-        # evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path)
-        visualize_predictions(train_dataset, model , num_examples=3, fileDir="DeepLab/2024-07-09-06-45/results")
+        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, model_name)
+        visualize_predictions(train_dataset, model , num_examples=1)

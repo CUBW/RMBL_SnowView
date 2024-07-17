@@ -1,5 +1,7 @@
-from .Model import DeepLabV3Plus
-from utils.Processing import split_data, Process
+from .Model import xception_model
+
+from utils.Processing import split_data
+from utils.Evaluation import evaluate
 
 
 import json
@@ -52,10 +54,9 @@ def train_masks(train_dataset):
     return class_weights
 
 
-def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=1 ):
+def train_model(xception, train_dataset, val_dataset, test_dataset, class_weights, batch_size=30, epochs=100):
     # Define the learning rates and optimizer
-    model_name = "DeepLab"
-    start_lr = 0.001
+    start_lr = 0.0001
     end_lr = 1e-6
     decay_steps = len(train_dataset) * 400
 
@@ -73,24 +74,20 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
     # Build the model
     model = tf.keras.Sequential([
         tf.keras.layers.Rescaling(1./255),
-        deeplab
+        xception
     ])
 
     model.compile(
-        optimizer=optimizer, 
-        loss=loss,
-        metrics=['accuracy',
-                tf.keras.metrics.Precision(),
-                tf.keras.metrics.Recall(),
-                tf.keras.metrics.MeanIoU(num_classes=2),
-                ]
-        )
+        optimizer=optimizer,
+        loss=loss, 
+        metrics=['accuracy']
+    )
 
     # Directory for checkpoints
-    checkpoint_dir = os.path.join(os.getcwd(), "models/DeepLab/checkpoints")
+    checkpoint_dir = os.path.join(os.getcwd(), "checkpoints")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_epoch_{{epoch:02d}}.keras")
+    checkpoint_path = os.path.join(checkpoint_dir, "model_epoch_{epoch:02d}.keras")
 
     # Model checkpointing to save the best model based on validation loss
     callbacks = [tf.keras.callbacks.ModelCheckpoint(
@@ -108,8 +105,10 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
         callbacks=callbacks
     )
 
-    # Define the model name and directory for saving the final mode
-    final_model_dir = os.path.join(os.getcwd(),"models/DeepLab", model_name, date_str, "Model_Data")
+    # Define the model name and directory for saving the final model
+    model_name = "Xception"
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    final_model_dir = os.path.join(os.getcwd(), model_name, date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
         os.makedirs(final_model_dir)
@@ -130,12 +129,9 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
 if __name__ == "__main__":
     dataset = Process()
     train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # class_weights = train_masks(train_dataset)
-    # print(f"Class weights: {class_weights}")
+    class_weights = train_masks(train_dataset)
+    print(f"Class weights: {class_weights}")
     print("Training the model...")
-    deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    model, history = train_model(deeplab, train_dataset, val_dataset, date_str)
-    # date_str = "2024-07-16-14-06"
-    from utils.Evaluation import evaluate
-    evaluate(model_date = date_str, model_name = "DeepLab", num_examples=1)
+    xception = xception_model(img_height=640, img_width=640, img_channels=3)
+    model, history = train_model(xception, train_dataset, val_dataset, test_dataset, class_weights, epochs=100)
+    evaluate_model(model, history, train_dataset,val_dataset, test_dataset)

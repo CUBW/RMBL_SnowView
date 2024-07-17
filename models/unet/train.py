@@ -51,14 +51,15 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
         unet_model
     ])
 
-    model.compile(optimizer=optimizer, 
-                loss=loss,
-                metrics=['accuracy',
-                        tf.keras.metrics.Precision(),
-                        tf.keras.metrics.Recall(),
-                        tf.keras.metrics.MeanIoU(num_classes=2),
-                        ]
-                )
+    model.compile(
+        optimizer=optimizer, 
+        loss=loss,
+        metrics=['accuracy',
+                tf.keras.metrics.Precision(),
+                tf.keras.metrics.Recall(),
+                tf.keras.metrics.MeanIoU(num_classes=2),
+                ]
+        )
 
     # Directory for checkpoints
     checkpoint_dir = os.path.join(os.getcwd(), "models/unet/checkpoints")
