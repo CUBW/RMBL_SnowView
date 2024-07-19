@@ -188,3 +188,4 @@ data/TinyImages/Imagery/DeerCreekTrail/DeerCreekTrail_2019_05_11_snow.tif.aux.xm
 *.keras
 *.png
 *.json
+data/640_640_4.pkl
