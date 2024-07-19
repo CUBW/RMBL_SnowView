@@ -109,14 +109,14 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
 
 
 if __name__ == "__main__":
-    # dataset = Process()
-    # train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # # class_weights = train_masks(train_dataset)
-    # # print(f"Class weights: {class_weights}")
-    # print("Training the model...")
-    # unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    # date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    # model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
-    date_str = "2024-07-16-16-28"
+    dataset = Process()
+    train_dataset, val_dataset, test_dataset = split_data(dataset)
+    # class_weights = train_masks(train_dataset)
+    # print(f"Class weights: {class_weights}")
+    print("Training the model...")
+    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+    model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
+    # date_str = "2024-07-16-16-28"
     from utils.Evaluation import evaluate
     evaluate(model_date =date_str, model_name="unet", num_examples=1)

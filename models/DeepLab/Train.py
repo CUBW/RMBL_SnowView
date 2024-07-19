@@ -82,7 +82,6 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
         metrics=['accuracy',
                 tf.keras.metrics.Precision(),
                 tf.keras.metrics.Recall(),
-                tf.keras.metrics.MeanIoU(num_classes=2),
                 ]
         )
 
