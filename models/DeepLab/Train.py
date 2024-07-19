@@ -26,9 +26,7 @@ def save_history(history, filename):
     with open(filename, 'w') as f:
         json.dump(history.history, f)
 
-def save_model_config(config, file_path):
-    with open(file_path, 'w') as f:
-        json.dump(config, f, indent=4)
+
         
 def train_masks(train_dataset):
     '''
@@ -112,7 +110,7 @@ def train_model(deeplab, train_dataset, val_dataset, date_str,dataset_info, batc
     )
 
     # Define the model name and directory for saving the final mode
-    final_model_dir = os.path.join(os.getcwd(),"models/DeepLab", model_name, date_str, "Model_Data")
+    final_model_dir = os.path.join(os.getcwd(),"models/DeepLab", "Previous", date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
         os.makedirs(final_model_dir)
@@ -164,8 +162,8 @@ if __name__ == "__main__":
  
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
  
-    batch_size = 16
-    epochs = 100
+    batch_size = 10
+    epochs = 1
  
     
     print("Processing the dataset...")
@@ -185,6 +183,6 @@ if __name__ == "__main__":
     }
     
     model, history = train_model(deeplab, train_dataset, val_dataset, date_str,dataset_info, batch_size=batch_size, epochs=epochs)
-    # date_str = "2024-07-16-14-06"
+    date_str = "2024-07-19-14-18"
     from utils.Evaluation import evaluate
     evaluate(model_date = date_str, model_name = "DeepLab", num_examples=1)

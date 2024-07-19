@@ -31,7 +31,12 @@ def save_plot(fig, filename, fileDir):
     fig.savefig(full_filepath)
     plt.close(fig)
 
+def save_model_config(config, file_path):
+    with open(file_path, 'w') as f:
+        json.dump(config, f, indent=4)
 
+        
+        
 def load_history(filename):
     """
     Load the training history from a file.
