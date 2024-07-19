@@ -26,6 +26,10 @@ def save_history(history, filename):
     with open(filename, 'w') as f:
         json.dump(history.history, f)
 
+def save_model_config(config, file_path):
+    with open(file_path, 'w') as f:
+        json.dump(config, f, indent=4)
+        
 def train_masks(train_dataset):
     '''
     This function computes class weights for training the masks using a TensorFlow dataset.
@@ -52,7 +56,7 @@ def train_masks(train_dataset):
     return class_weights
 
 
-def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=16, epochs=100):
+def train_model(deeplab, train_dataset, val_dataset, date_str,dataset_info, batch_size=16, epochs=100):
     # Define the learning rates and optimizer
     model_name = "DeepLab"
     start_lr = 0.001
@@ -122,19 +126,65 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=16, ep
     model_save_path = os.path.join(final_model_dir, model_file_name)
     model.save(model_save_path)
     
+    # Save model configuration
+    config = {
+        "model_name": model_name,
+        "date": date_str,
+        "batch_size": batch_size,
+        "epochs": epochs,
+        "learning_rate": {
+            "start_lr": start_lr,
+            "end_lr": end_lr,
+            "decay_steps": decay_steps,
+            "schedule": "PolynomialDecay"
+        },
+        "optimizer": "Adam",
+        "loss_function": "BinaryCrossentropy",
+        "metrics": ["accuracy", "precision", "recall"],
+        "dataset": dataset_info,
+        "callbacks": ["ModelCheckpoint", "EarlyStopping"]
+    }
+    
+    config_file_name = os.path.join(final_model_dir, "config.json")
+    save_model_config(config, config_file_name)
+    
     print(f"Model and history saved successfully in {final_model_dir}")
     return model, history
 
 
 if __name__ == "__main__":
-    dataset = Process()
+    '''Training configuration:
+            (this will be used before a script is created or not)
+    
+    '''
+    dateset_fileName = "640_640_4.pkl"
+    img_height = 640
+    img_width = 640
+    img_channels = 4
+ 
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+ 
+    batch_size = 16
+    epochs = 100
+ 
+    
+    print("Processing the dataset...")
+    dataset = Process(dateset_fileName)
+    print("Splitting")
     train_dataset, val_dataset, test_dataset = split_data(dataset)
     # class_weights = train_masks(train_dataset)
     # print(f"Class weights: {class_weights}")
     print("Training the model...")
-    deeplab = DeepLabV3Plus(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    model, history = train_model(deeplab, train_dataset, val_dataset, date_str)
+    deeplab = DeepLabV3Plus(n_classes=1, img_height=img_height, img_width=img_width, img_channels=img_channels)
+    
+    dataset_info = {
+        "dateset_fileName" : dateset_fileName,
+        "num_train_samples": len(train_dataset),
+        "num_val_samples": len(val_dataset),
+        "image_shape": (img_height, img_width, img_channels)  # Update this if image shape is different
+    }
+    
+    model, history = train_model(deeplab, train_dataset, val_dataset, date_str,dataset_info, batch_size=batch_size, epochs=epochs)
     # date_str = "2024-07-16-14-06"
     from utils.Evaluation import evaluate
     evaluate(model_date = date_str, model_name = "DeepLab", num_examples=1)
