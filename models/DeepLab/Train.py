@@ -52,7 +52,7 @@ def train_masks(train_dataset):
     return class_weights
 
 
-def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=10 ):
+def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=100 ):
     # Define the learning rates and optimizer
     model_name = "DeepLab"
     start_lr = 0.001
@@ -75,14 +75,13 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
         tf.keras.layers.Rescaling(1./255),
         deeplab
     ])
-
+    # took out IoU and now it works for some reason
     model.compile(
         optimizer=optimizer, 
         loss=loss,
         metrics=['accuracy',
                 tf.keras.metrics.Precision(),
                 tf.keras.metrics.Recall(),
-                tf.keras.metrics.MeanIoU(num_classes=2),
                 ]
         )
 
