@@ -1,6 +1,6 @@
 from .Model import unet_model
 from utils.Processing import Process, split_data
-
+from utils.Evaluation import save_model_config
 import tensorflow as tf
 import os
 from sklearn.model_selection import train_test_split
@@ -25,7 +25,7 @@ def save_history(history, filename):
         json.dump(history.history, f)
     
 
-def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, batch_size=20, epochs=60):
+def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, batch_size=20, epochs=60):
     print("batch size: ", batch_size)
     print("num of epochs: ", epochs)
     model_name = "unet"
@@ -90,7 +90,7 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
     # Define the model name and directory for saving the final model
     
    
-    final_model_dir = os.path.join(os.getcwd(),"models",model_name, "Previous". date_str, "Model_Data")
+    final_model_dir = os.path.join(os.getcwd(),"models",model_name, "Previous", date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
         os.makedirs(final_model_dir)
@@ -103,20 +103,59 @@ def train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str, 
     model_file_name = f"{model_name}_{date_str}.keras"
     model_save_path = os.path.join(final_model_dir, model_file_name)
     model.save(model_save_path)
+        # Save model configuration
+    config = {
+        "model_name": model_name,
+        "date": date_str,
+        "batch_size": batch_size,
+        "epochs": epochs,
+        "learning_rate": {
+            "start_lr": start_lr,
+            "end_lr": end_lr,
+            "decay_steps": decay_steps,
+            "schedule": "PolynomialDecay"
+        },
+        "optimizer": "Adam",
+        "loss_function": "BinaryCrossentropy",
+        "metrics": ["accuracy", "precision", "recall"],
+        "dataset": dataset_info,
+        "callbacks": ["ModelCheckpoint", "EarlyStopping"]
+    }
     
+    config_file_name = os.path.join(final_model_dir, "config.json")
+    save_model_config(config, config_file_name)
     print(f"Model and history saved successfully in {final_model_dir}")
     return model, history
 
 
 if __name__ == "__main__":
-    # dataset = Process()
-    # train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # # class_weights = train_masks(train_dataset)
-    # # print(f"Class weights: {class_weights}")
-    # print("Training the model...")
-    # unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    # date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    # model, history = train_model(unet_model, train_dataset, val_dataset, test_dataset, date_str)
-    date_str = "2024-07-16-16-28"
+    
+    dateset_fileName = "640_640_4.pkl"
+    img_height = 640
+    img_width = 640
+    img_channels = 4
+ 
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+ 
+    batch_size = 10
+    epochs = 1
+    
+    dataset = Process(dateset_fileName)
+    train_dataset, val_dataset, test_dataset = split_data(dataset)
+    # class_weights = train_masks(train_dataset)
+    # print(f"Class weights: {class_weights}")
+    print("Training the model...")
+    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    
+    dataset_info = {
+        "dateset_fileName" : dateset_fileName,
+        "num_train_samples": len(train_dataset),
+        "num_val_samples": len(val_dataset),
+        "image_shape": (img_height, img_width, img_channels)  # Update this if image shape is different
+    }
+    
+    
+    model, history = train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, batch_size=batch_size, epochs=epochs)
+    # date_str = "2024-07-16-16-28"
     from utils.Evaluation import evaluate
     evaluate(model_date =date_str, model_name="unet", num_examples=1)

@@ -178,10 +178,4 @@ cv2_resize.ipynb
 
 *.keras
 *.json
-*.pkl
-*.joblib
-gabor_filters/
-snow_venv/
-*.exe
-*.bat
-*.sh
+data/640_640_4.pkl

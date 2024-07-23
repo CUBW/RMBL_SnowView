@@ -121,7 +121,7 @@ def train_masks(train_dataset):
 
 
 
-def Process():
+def Process(fileName = "640_640_4.pkl"):
     '''
     This function creates a dataset from the images and masks stored in the specified directory.
     It also inspects the dataset by displaying the shape of the first few images and masks.
@@ -132,6 +132,9 @@ def Process():
     
     
     '''
+    # Dynamically construct the absolute path to the data file
+    FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', fileName)
+    # allow input of file to use for dataset
     dataset = create_dataset(FILEPATH)
     print("Dataset created successfully with {} images".format(len(dataset)))
 
@@ -149,7 +152,6 @@ def Process():
 
 if __name__ == "__main__":
     import os
-    print("looking at: ", FILEPATH)
     Process()
     
     
