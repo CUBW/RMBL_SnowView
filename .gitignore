@@ -166,6 +166,21 @@ cython_debug/
 RMBL_SnowView.code-workspace
 
 # Don't want to save all of that data
+
+data/
+*.pkl
+*.joblib
+gabor_filters/
+
+data/same_size
+cv2_resize.ipynb
+.DS_Store
+*.tif
+
+*.keras
+*.json
+data/640_640_4.pkl
+=======
 *.joblib
 *.keras
 *.pkl
@@ -179,3 +194,4 @@ TinyImages/Snow_Mask
 
 # virtual env.
 snow/
+
