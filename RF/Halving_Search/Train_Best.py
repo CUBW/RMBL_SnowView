@@ -13,7 +13,7 @@ BEST_PARAMS = {
     'min_samples_split': 5, 
     'n_estimators': 50
 }
-NUM_TRIALS = 1
+NUM_TRIALS = 10
 OUTPUT_DIRECTORY = "results/best_1/"
 
 def get_trained_model(X_train,y_train):
