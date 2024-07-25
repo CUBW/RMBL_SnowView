@@ -242,7 +242,8 @@ def process_file(file_path, output_dir = OUTPUT_DIRECTORY, store = True):
 
     snow, mask, snow_meta = trim_and_resample(
         os.path.join(SOURCE, 'Imagery', location, f'{location}_{date}_snow.tif'), 
-        os.path.join(SOURCE, 'Snow_Mask', location, f'{location}_{date}_snowbinary.tif')
+        os.path.join(SOURCE, 'Snow_Mask', location, f'{location}_{date}_snowbinary.tif'),
+        num_channels=NUM_CHANNELS
     )
 
     snow, mask, snow_meta = pad_for_tiles(snow, mask, snow_meta)
