@@ -188,5 +188,7 @@ U-Net/U-Net/2024-07-10-16-07/Model_Data/history.json
 U-Net/U-Net/2024-07-10-17-25/Model_Data/history.json
 
 *.tif
+*.tiff
+*.npz
 .venv
 .vscode/
