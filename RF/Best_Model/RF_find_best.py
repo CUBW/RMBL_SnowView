@@ -100,11 +100,11 @@ if __name__ == '__main__':
 
     # prameters from halving grid search
     params =  {
-        'criterion': 'entropy', 
+        'criterion': 'entropy',
         'max_depth': 20, 
-        'max_features': 'log2', 
-        'min_samples_leaf': 4, 
-        'min_samples_split': 5, 
+        'max_features': 'log2',
+        'min_samples_leaf': 2, 
+        'min_samples_split': 2, 
         'n_estimators': 50,
         'n_jobs': -1,
         'verbose': 1,
