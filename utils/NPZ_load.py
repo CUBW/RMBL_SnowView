@@ -4,19 +4,16 @@ import tensorflow as tf
 from tqdm import tqdm 
 
 def remove_duplicate_channel(image):
-    print("removing duplicate channel")
     if image.shape[0] == 5 and np.array_equal(image[3], image[4]):
         return image[:4]
     return image
 
 # Function to create a TFRecord example
 def create_tfrecord_example(image, mask):
-    print("creating tfrecord example")
     feature = {
         'image': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.io.encode_png(image).numpy()])),
         'mask': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.io.encode_png(mask).numpy()]))
     }
-    print("created tfrecord example")
     return tf.train.Example(features=tf.train.Features(feature=feature))
 
 def create_npz_to_TFRecord(image_file, mask_file, tfrecord_filename):
@@ -31,12 +28,11 @@ def create_npz_to_TFRecord(image_file, mask_file, tfrecord_filename):
     # Create a TFRecord writer for each .npz file
     with tf.io.TFRecordWriter(tfrecord_filename) as tfrecord_writer:
         # Iterate over the image and mask arrays
-        for image_key, mask_key in zip(image_keys, mask_keys):
+        for image_key, mask_key in tqdm(zip(image_keys, mask_keys), total=len(image_keys), desc="Processing images and masks"):
             # Load the image and mask
             image = image_data[image_key]
             mask = mask_data[mask_key]
            
-            print(f"Processing image: {image_key}, mask: {mask_key}") 
             # Remove the duplicate 5th channel if present
             image = remove_duplicate_channel(image)
             
@@ -49,7 +45,6 @@ def create_npz_to_TFRecord(image_file, mask_file, tfrecord_filename):
             
             # Write the example to the TFRecord file
             tfrecord_writer.write(tfrecord_example.SerializeToString())
-            print("wrote to tfrecord")
             
     print(f"Created TFRecord file: {tfrecord_filename}")
 
