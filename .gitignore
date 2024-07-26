@@ -192,3 +192,4 @@ U-Net/U-Net/2024-07-10-17-25/Model_Data/history.json
 *.npz
 .venv
 .vscode/
+*.h5
