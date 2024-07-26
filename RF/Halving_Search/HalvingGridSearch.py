@@ -8,8 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.experimental import enable_halving_search_cv  #noqa
 from sklearn.model_selection import HalvingGridSearchCV
 
-OUTPUT_DIRECTORY = "results/"
-SOURCE_FILEPATH = "../X_y.pkl"
+OUTPUT_DIRECTORY = "results_3/"
+SOURCE_FILEPATH = "../../X_y.pkl"
 
 def format_time(seconds):
     """
@@ -63,21 +63,20 @@ def perfom_halving_rand_search(X, y, clf, save_results=True):
         resource='n_samples', 
         scoring='f1', 
         verbose = 1, 
-        random_state=42,
         n_jobs=-1,
         
 
     )
 
-    # fit rand search
+    # fit Grid search
     rsh.fit(X, y)
 
-    # save the rand search
+    # save the Grid search
     if save_results:
         with open(OUTPUT_DIRECTORY + "HalvingGridSearch.pkl", 'wb') as f:
             pickle.dump(rsh, f)
 
-    # return the rand search
+    # return the Grid search
     return rsh
 
 def perform_analysis(rsh):
@@ -136,14 +135,14 @@ if __name__ == "__main__":
         os.makedirs(OUTPUT_DIRECTORY)
     
     # make classifier
-    clf = RandomForestClassifier(random_state=42)
+    clf = RandomForestClassifier()
 
-    print("Performing Halving Rand Search...")
+    print("Performing Halving Grid Search...")
     start_time = time.time()
-    # perform halving rand search
+    # perform halving Grid search
     rsh = perfom_halving_rand_search(X, y, clf)
-    print("Halving Rand Search performed.")
-    print("Rand Search saved at 'results/HalvingGridSearch.pkl'")
+    print("Halving Grid Search performed.")
+    print("Grid Search saved at 'results/HalvingGridSearch.pkl'")
     print(f"Time taken: {format_time(time.time()-start_time)}")
 
     
