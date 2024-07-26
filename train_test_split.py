@@ -5,7 +5,7 @@ import random
 import time
 
 SOURCE = "output_4_channel"
-OUTPUT_DIRECTORY = "data/512_splits"
+OUTPUT_DIRECTORY = "data/512_splits_4_channel"
 
 def generate_indicies_list(files):
     all_indices = []

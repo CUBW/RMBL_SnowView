@@ -193,3 +193,4 @@ gabor_filters/
 
 *.npz
 .vscode/
+*.h5

@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
+import h5py
 
+from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, f1_score, precision_score, recall_score
 from skimage.filters import roberts, sobel, scharr, prewitt
@@ -13,10 +15,13 @@ from skimage import filters
 from skimage.morphology import disk
 from scipy import ndimage as nd
 
-SOURCE_DIR = "data/512_splits"
-OUTPUT_DIR = "results"
+SOURCE_DIR = "data/512_splits_4_channel"
+OUTPUT_DIR = "data/512_features"
 
 def feature_extraction(img, mask, print_gabor = False):
+    if img.shape[0] !=4:
+        raise TypeError("Image must have 4 channels")
+    
     img = np.transpose(img, (1,2,0))
     mask = np.transpose(mask, (1,2,0))
 
@@ -24,9 +29,12 @@ def feature_extraction(img, mask, print_gabor = False):
     gray = cv2.cvtColor(img[:,:,:3], cv2.COLOR_BGR2GRAY)
 
     #create output nparray
-    output = img.reshape((-1,3))
+    output = img.reshape((-1,4))
     output.astype(np.uint8)
     output = np.append(output, gray.reshape((-1,1)), axis=1)
+
+    # trim img to 3 channels
+    img = img[:,:,:3]
 
     #gabor filter
     num = 1
@@ -111,12 +119,44 @@ if __name__ == "__main__":
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
-    # open npz file
-    testimg = np.load('output_4_channel/DeerCreekTrail_2019_05_22_tiles_images.npz')
-    testmask = np.load('output_4_channel/DeerCreekTrail_2019_05_22_tiles_masks.npz')
+    # get all _images.npz files from SOURCE_DIR
+    npz_files = glob.glob(os.path.join(SOURCE_DIR, '*_images.npz'), recursive=True)
 
-    img_arrays = testimg.files
-    mask_arrays = testmask.files
+    hf = h5py.File(os.path.join(OUTPUT_DIR, 'features.h5'), 'a')
 
-    # run feature extraction on 4
-    features = feature_extraction(testimg[img_arrays[4]], testmask[mask_arrays[4]])
+    
+    # iterate through each npz file
+    for file in tqdm(npz_files, unit='batch'):
+        # get information
+        tags = os.path.basename(file).split('_')
+        type = tags[1]
+        index = tags[2]
+
+        # open images and masks
+        images = np.load(file)
+        masks = np.load(file.replace('images', 'masks'))
+
+        images_arrays = images.files
+        masks_arrays = masks.files
+
+        features = np.empty((0, 22))
+        features.astype(np.uint8)
+        # extract features from each array
+        for i in range(len(images_arrays)):
+            # extract features
+            new_features = feature_extraction(images[images_arrays[i]], masks[masks_arrays[i]])
+
+            # append new features
+            features = np.append(features, new_features, axis=0)
+
+        if type in hf.keys():
+            # append
+            hf[type].resize((hf[type].shape[0] + features.shape[0]), axis = 0)
+            hf[type][-features.shape[0]:] = features
+        else:
+            # create h5 file
+            with h5py.File(os.path.join(OUTPUT_DIR, 'features.h5'), 'w') as hf:
+                hf.create_dataset(type, data=features, compression="gzip", maxshape=(None, 22), chunks=True)
+
+    hf.close()
+    print("Feature extraction complete")

@@ -16,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 SOURCE = 'C:/Users/apfox/UCB-O365/Travis Hainsworth - RMBL/2 - Source Data/2019-2020_Data'
 OUTPUT_DIRECTORY = 'output_4_channel/'
 NUM_CHANNELS = 4 
-NUM_THREADS = 10
+NUM_THREADS = 4
 
 BAD_FILES = [
         "VirginiaBasin_2019_07_10_snow.tif",
