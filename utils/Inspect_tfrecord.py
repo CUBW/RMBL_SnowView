@@ -40,7 +40,7 @@ def visualize_tfrecord(tfrecord_filename, num_examples=10):
     plt.show()
 
 # Path to the TFRecord file
-tfrecord_filename = os.path.join(OUTPUT_DIR, 'train_0.tfrecord')
+tfrecord_filename = os.path.join(OUTPUT_DIR, 'val_4.tfrecord')
 
 # Visualize the TFRecord data
 visualize_tfrecord(tfrecord_filename)

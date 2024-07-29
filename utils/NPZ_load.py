@@ -5,7 +5,14 @@ from tqdm import tqdm
 
 def remove_duplicate_channel(image):
     if image.shape[0] == 5 and np.array_equal(image[3], image[4]):
-        return image[:4]
+        updated_image = np.delete(image, 4, axis=0)
+        return updated_image
+    elif image.shape[0] > 5:
+        print("image shape above 5")
+        print("image shape before", image.shape)
+        updated_image = np.delete(image, 4, axis=0)
+        print("image shape after", updated_image.shape)
+        return updated_image
     return image
 
 # Function to create a TFRecord example
@@ -17,9 +24,16 @@ def create_tfrecord_example(image, mask):
     return tf.train.Example(features=tf.train.Features(feature=feature))
 
 def create_npz_to_TFRecord(image_file, mask_file, tfrecord_filename):
-    # Load the image and mask files
-    image_data = np.load(os.path.join(FILEPATH, image_file))
-    mask_data = np.load(os.path.join(FILEPATH, mask_file))
+    try:
+        # Load the image and mask files
+        image_data = np.load(os.path.join(FILEPATH, image_file), allow_pickle=False)
+        mask_data = np.load(os.path.join(FILEPATH, mask_file), allow_pickle=False)
+    except ValueError as e:
+        print(f"Error loading {image_file} or {mask_file}: {e}")
+        return
+    except Exception as e:
+        print(f"Unexpected error loading {image_file} or {mask_file}: {e}")
+        return
      
     # Assuming each .npz file contains multiple arrays
     image_keys = list(image_data.keys())
@@ -28,23 +42,30 @@ def create_npz_to_TFRecord(image_file, mask_file, tfrecord_filename):
     # Create a TFRecord writer for each .npz file
     with tf.io.TFRecordWriter(tfrecord_filename) as tfrecord_writer:
         # Iterate over the image and mask arrays
-        for image_key, mask_key in tqdm(zip(image_keys, mask_keys), total=len(image_keys), desc="Processing images and masks"):
-            # Load the image and mask
-            image = image_data[image_key]
-            mask = mask_data[mask_key]
-           
-            # Remove the duplicate 5th channel if present
-            image = remove_duplicate_channel(image)
-            
-            # Transpose the image and mask to (height, width, channels)
-            image = image.transpose(1, 2, 0)
-            mask = mask.transpose(1, 2, 0)
-            
-            # Create a TFRecord example
-            tfrecord_example = create_tfrecord_example(image, mask)
-            
-            # Write the example to the TFRecord file
-            tfrecord_writer.write(tfrecord_example.SerializeToString())
+        category, number = image_file.split('_')[:2]
+        for image_key, mask_key in tqdm(zip(image_keys, mask_keys), total=len(image_keys), desc=f"Processing {category}_{number}"):
+            try:
+                # Load the image and mask
+                image = image_data[image_key]
+                mask = mask_data[mask_key]
+               
+                # Remove the duplicate 5th channel if present
+                image = remove_duplicate_channel(image)
+                
+                # Transpose the image and mask to (height, width, channels)
+                image = image.transpose(1, 2, 0)
+                mask = mask.transpose(1, 2, 0)
+                
+                # Create a TFRecord example
+                if(image.shape[2] >= 5):
+                    # image somehow made it past and has more than 4 channels
+                    image=image[:,:,:4]
+                tfrecord_example = create_tfrecord_example(image, mask)
+                
+                # Write the example to the TFRecord file
+                tfrecord_writer.write(tfrecord_example.SerializeToString())
+            except Exception as e:
+                print(f"Error processing {image_key} or {mask_key} in {image_file}: {e}")
             
     print(f"Created TFRecord file: {tfrecord_filename}")
 

@@ -6,8 +6,8 @@ import random
 import cv2
 import os
 import pickle
-IMG_HEIGHT = 640
-IMG_WIDTH = 640
+IMG_HEIGHT = 512
+IMG_WIDTH = 512
 IMG_CHANNELS = 3
 
 # Dynamically construct the absolute path to the data file
