@@ -27,7 +27,7 @@ def load_data_in_batches(img_filenames):
         
         # process data in chunks to limit number of array copying
         chunk = np.empty((0,4), dtype=np.uint8)
-        chunk_size = 100 # number is a total guess but seems to work, each batch is ~ 3900 tiles
+        chunk_size = 300 # number is a total guess but seems to work, each batch is ~ 3900 tiles
         
         for i in range(len(img_arrays)):
             # flatten images and mask
@@ -93,7 +93,7 @@ def train_in_batches(img_filenames, val_filenames, estimator_per_batch = 1):
         print(f"Trained {estimator_per_batch} more trees ({n_estimators} total) in {time.time()-start_time} seconds.")
         
         # save model
-        with open(os.path.join(OUTPUT_DIR, 'checkpoints', f'3_feature_{n_estimators/estimator_per_batch}.pkl'),'wb') as f:
+        with open(os.path.join(OUTPUT_DIR, 'checkpoints', f'3_feature_checkpoint.pkl'),'wb') as f:
             pickle.dump(rf, f)
         # print(metrics)
 
@@ -138,7 +138,7 @@ def main():
     val_filepaths = glob.glob(os.path.join(SOURCE, 'val*images.npz'), recursive=True)
     
     # train model
-    rf = train_in_batches(img_filenames=[img_filepaths[0]], val_filenames= [val_filepaths[0]])
+    rf = train_in_batches(img_filenames=img_filepaths, val_filenames= val_filepaths)
     
     # save model
     with open(os.path.join(OUTPUT_DIR, "3_feature_model.pkl"), 'wb') as f:
@@ -154,7 +154,7 @@ def main():
     test_filepaths = glob.glob(os.path.join(SOURCE, 'test*images.npz'), recursive=True)
     
     # get metrics
-    test_metrics = evaluate_model_in_batches(test_filepaths)
+    test_metrics = evaluate_model_in_batches(rf, test_filepaths)
     
     # save metrics to file
     with open(os.path.join(OUTPUT_DIR, "results.txt"), 'w') as file:
