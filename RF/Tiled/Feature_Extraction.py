@@ -1,14 +1,11 @@
 import os
 import glob
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import cv2
 import h5py
+import time
 
 from tqdm import tqdm
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, f1_score, precision_score, recall_score
 from skimage.filters import roberts, sobel, scharr, prewitt
 from skimage.segmentation import felzenszwalb, quickshift, slic, watershed
 from skimage import filters
@@ -17,11 +14,10 @@ from scipy import ndimage as nd
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing
-import threading
 
-SOURCE_DIR = "data/512_splits_4_channel"
-OUTPUT_DIR = "data/512_features"
-NUM_THREADS = 5
+SOURCE_DIR = "E:/RMBL_Snow_Data/1024_splits_4_channel"
+OUTPUT_DIR = "E:/RMBL_Snow_Data/1024_12_feature"
+NUM_THREADS = 3
 
 def feature_extraction(img, mask, print_gabor = False):
     if img.shape[0] !=4:
@@ -118,7 +114,6 @@ def feature_extraction(img, mask, print_gabor = False):
 
     return output
 
-
 def process_file(file, lock, output_dir):
     tags = os.path.basename(file).split('_')
     type = tags[1]
@@ -130,29 +125,28 @@ def process_file(file, lock, output_dir):
     images_arrays = images.files
     masks_arrays = masks.files
 
-    features = np.empty((0, 12), dtype=np.uint8)
-
     # Extract features from each array
     for i in range(len(images_arrays)):
         # Extract features
         new_features = feature_extraction(images[images_arrays[i]], masks[masks_arrays[i]])
+        
 
-        # Append new features
-        features = np.append(features, new_features, axis=0)
-
-    with lock:
-        with h5py.File(os.path.join(output_dir, 'features.h5'), 'a') as hf:
-            if type in hf.keys():
-                # Append
-                hf[type].resize((hf[type].shape[0] + features.shape[0]), axis=0)
-                hf[type][-features.shape[0]:] = features
-            else:
-                # Create dataset
-                hf.create_dataset(type, data=features, compression="gzip", maxshape=(None, 12), chunks=True)
+        with lock:
+            with h5py.File(os.path.join(output_dir, '12_features.h5'), 'a') as hf:
+                if type in hf.keys():
+                    # Append
+                    hf[type].resize((hf[type].shape[0] + new_features.shape[0]), axis=0)
+                    hf[type][-new_features.shape[0]:] = new_features
+                else:
+                    # Create dataset
+                    hf.create_dataset(type, data=new_features, compression="gzip", maxshape=(None, 12), chunks=True)
 
 def main(source_dir, output_dir):
+    # create ouput directory
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    
     # Get all _images.npz files from SOURCE_DIR
-    npz_files = glob.glob(os.path.join(source_dir, '*_images.npz'), recursive=True)
+    npz_files = glob.glob(os.path.join(source_dir, 'test*_images.npz'), recursive=True)
 
     # Create a lock for thread-safe HDF5 file access
     lock = multiprocessing.Manager().Lock()
@@ -160,7 +154,7 @@ def main(source_dir, output_dir):
     # Process files in parallel
     with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         futures = [executor.submit(process_file, file, lock, output_dir) for file in npz_files]
-        for future in tqdm(as_completed(futures), total=len(futures), unit='batch'):
+        for future in tqdm(as_completed(futures), total=len(futures), unit='file'):
             future.result()  # To raise any exceptions that occurred during execution
 
 if __name__ == "__main__":
