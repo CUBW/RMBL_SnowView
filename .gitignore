@@ -190,5 +190,8 @@ models/unet/Previous/2024-07-16-13-53/Model_Data/history.json
 models/unet/Previous/2024-07-16-16-28/Model_Data/history.json
 
 *.tif
+*.tiff
+*.npz
 .venv
 .vscode/
+*.h5
