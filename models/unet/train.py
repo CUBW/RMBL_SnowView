@@ -32,7 +32,8 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
     # Define the learning rates and optimizer
     start_lr = 0.001
     end_lr = 1e-4
-    dataset_length = 2459
+    # look in dataset info for the number of samples in the training dataset
+    dataset_length = dataset_info["num_train_samples"]
     decay_steps = dataset_length * 400
 
     learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
@@ -75,22 +76,22 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
         save_best_only=True,
         save_freq='epoch',
     )]
-    # Convert class_weights to dictionary if it's a numpy array
-    # if isinstance(class_weights, np.ndarray):
-    #     print("Converting class weights to dictionary")
-    #     class_weights = {i: weight for i, weight in enumerate(class_weights)}
     
+    # Calculate steps per epoch
+    steps_per_epoch = dataset_info["num_train_samples"] // batch_size
+    validation_steps = dataset_info["num_val_samples"] // batch_size
+
     # Training the model with validation data
     history = model.fit(
         train_dataset,
         validation_data=val_dataset, 
         epochs=epochs, 
         callbacks=callbacks,
+        steps_per_epoch=steps_per_epoch,
+        validation_steps=validation_steps
     )
 
     # Define the model name and directory for saving the final model
-    
-   
     final_model_dir = os.path.join(os.getcwd(),"models",model_name, "Previous", date_str, "Model_Data")
     
     if not os.path.exists(final_model_dir):
@@ -104,7 +105,8 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
     model_file_name = f"{model_name}_{date_str}.keras"
     model_save_path = os.path.join(final_model_dir, model_file_name)
     model.save(model_save_path)
-        # Save model configuration
+    
+    # Save model configuration
     config = {
         "model_name": model_name,
         "date": date_str,
@@ -127,6 +129,7 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
     save_model_config(config, config_file_name)
     print(f"Model and history saved successfully in {final_model_dir}")
     return model, history
+
 
 
 if __name__ == "__main__":

@@ -66,16 +66,17 @@ def visualize_dataset(dataset, num_samples=5):
             # Plot the image
             plt.subplot(1, 2, 1)
             plt.imshow(images[i])
-            plt.title('Image')
+            plt.title(f'Image\nDimensions: {images[i].shape}')
             plt.axis('off')
             
             # Plot the mask
             plt.subplot(1, 2, 2)
             plt.imshow(masks[i].squeeze(), cmap='gray')
-            plt.title('Mask')
+            plt.title(f'Mask\nDimensions: {masks[i].shape}')
             plt.axis('off')
             
             plt.show()
+
 
 
 def create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size):
@@ -111,4 +112,4 @@ if __name__ == '__main__':
     dataset_length = lengths[0]
     print(f"Number of elements in train_dataset: {dataset_length}")
     
-    visualize_dataset(train_dataset)
+    # visualize_dataset(train_dataset)
