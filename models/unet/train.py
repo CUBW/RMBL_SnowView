@@ -1,5 +1,5 @@
 from .Model import unet_model
-from utils.Processing import Process, split_data
+from utils.recordProcessing import create_datasets, select_files
 from utils.Evaluation import save_model_config
 import tensorflow as tf
 import os
@@ -32,7 +32,8 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
     # Define the learning rates and optimizer
     start_lr = 0.001
     end_lr = 1e-4
-    decay_steps = len(train_dataset) * 400
+    dataset_length = 2459
+    decay_steps = dataset_length * 400
 
     learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
         start_lr,
@@ -81,8 +82,8 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
     
     # Training the model with validation data
     history = model.fit(
-        train_dataset.batch(batch_size),
-        validation_data=val_dataset.batch(batch_size), 
+        train_dataset,
+        validation_data=val_dataset, 
         epochs=epochs, 
         callbacks=callbacks,
     )
@@ -130,28 +131,29 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
 
 if __name__ == "__main__":
     
-    dateset_fileName = "640_640_4.pkl"
-    img_height = 640
-    img_width = 640
+    dateset_DIRName = "512_Splits_4_TFRecord"
+    img_height = 512
+    img_width = 512
     img_channels = 4
  
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
  
     batch_size = 10
     epochs = 1
+    buffer_size = 1000
     
-    dataset = Process(dateset_fileName)
-    train_dataset, val_dataset, test_dataset = split_data(dataset)
+    train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files()
+    train_dataset, val_dataset, test_dataset, lengths = create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size)
     # class_weights = train_masks(train_dataset)
     # print(f"Class weights: {class_weights}")
     print("Training the model...")
-    unet_model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
-    
+    unet_model = unet_model(n_classes=1, img_height=512, img_width=512, img_channels=4)
     dataset_info = {
-        "dateset_fileName" : dateset_fileName,
-        "num_train_samples": len(train_dataset),
-        "num_val_samples": len(val_dataset),
-        "image_shape": (img_height, img_width, img_channels)  # Update this if image shape is different
+        "dateset_fileName" : dateset_DIRName,
+        "num_train_samples": lengths[0],
+        "num_test_samples": lengths[1],
+        "num_val_samples": lengths[2],
+        "image_shape": (img_height, img_width, img_channels)  
     }
     
     

@@ -11,10 +11,11 @@ def _parse_function(proto):
     parsed_features = tf.io.parse_example(proto, feature_description)
     
     # Decode the image and mask
-    images = tf.map_fn(lambda x: tf.io.decode_png(x, channels=4), parsed_features['image'], dtype=tf.uint8)
-    masks = tf.map_fn(lambda x: tf.io.decode_png(x, channels=1), parsed_features['mask'], dtype=tf.uint8)
+    images = tf.map_fn(lambda x: tf.io.decode_png(x, channels=4), parsed_features['image'], fn_output_signature=tf.uint8)
+    masks = tf.map_fn(lambda x: tf.io.decode_png(x, channels=1), parsed_features['mask'], fn_output_signature=tf.uint8)
     
     return images, masks
+
 
 
 def create_dataset(tfrecord_files, batch_size, buffer_size=1000, training=True):
@@ -37,7 +38,11 @@ def create_dataset(tfrecord_files, batch_size, buffer_size=1000, training=True):
     return dataset
 
 
-def select_files(directory):
+def select_files():
+    # This is the directory where the TFRecord files are stored
+    directory = os.path.join(os.path.dirname(__file__), '..', 'data', '512_Splits_4_TFRecord')
+
+
     # Get the list of TFRecord files in the directory
     train_tfrecord_files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith('train')]
     
@@ -72,18 +77,38 @@ def visualize_dataset(dataset, num_samples=5):
             
             plt.show()
 
-if __name__ == '__main__':
-    batch_size = 32
-    buffer_size = 1000
-    
-    DIRPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '512_Splits_4_TFRecord')
-    
-    # Get the list of TFRecord files
-    train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files(DIRPATH) 
-    
+
+def create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size):
     # Create datasets for training, testing, and validation
     train_dataset = create_dataset(train_tfrecord_files, batch_size, buffer_size)
     test_dataset = create_dataset(test_tfrecord_files, batch_size, buffer_size, training=False)
     val_dataset = create_dataset(val_tfrecord_files, batch_size, buffer_size, training=False)
+   
+    lengths = [get_dataset_length(train_dataset), get_dataset_length(test_dataset), get_dataset_length(val_dataset)]
+   
+    
+    return train_dataset, test_dataset, val_dataset, lengths
+
+def get_dataset_length(dataset):
+    length = 0
+    for _ in dataset:
+        length += 1
+    return length
+
+if __name__ == '__main__':
+    batch_size = 32
+    buffer_size = 1000
+    
+    
+    # Get the list of TFRecord files
+    train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files() 
+    
+    # Create datasets for training, testing, and validation
+    train_dataset, test_dataset, val_dataset, lengths = create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size)
+   
+    # dataset_length = tf.data.experimental.cardinality(train_dataset).numpy()
+    # Check the cardinality
+    dataset_length = lengths[0]
+    print(f"Number of elements in train_dataset: {dataset_length}")
     
     visualize_dataset(train_dataset)

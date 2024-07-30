@@ -86,14 +86,14 @@ def encoder_block(inputs , n_filters, dropout, l2):
 def decoder_block(pool, skip_connection, n_filters, dropout, l2):
     # Upsample using nearest neighbor and bilinear interpolation
     upsample = UpSampling2D(size=(2, 2), interpolation='bilinear')(pool)
-    print(f"Upsample shape: {upsample.shape}")
+    # print(f"Upsample shape: {upsample.shape}")
     
     upsample = Conv2D(n_filters, (3, 3), padding='same', kernel_regularizer=tf.keras.regularizers.L2(l2))(upsample)
-    print(f"Conv2D after upsample shape: {upsample.shape}")
+    # print(f"Conv2D after upsample shape: {upsample.shape}")
     
     # Concatenate the skip connections
     concat = concatenate([upsample, skip_connection])
-    print(f"Concatenated shape: {concat.shape}")
+    # print(f"Concatenated shape: {concat.shape}")
     
     # Convolutional Block
     conv = conv_block(concat, n_filters, dropout, l2)
@@ -131,8 +131,8 @@ def unet_model(n_classes, img_height, img_width, img_channels):
     # Create the model
     model = Model(inputs=[inputs], outputs=[outputs])
 
-    print("Model summary to check everything with the dimensions:")
-    model.summary()
+    # print("Model summary to check everything with the dimensions:")
+    # model.summary()
     return model
 
 
@@ -141,7 +141,7 @@ def unet_model(n_classes, img_height, img_width, img_channels):
 
 if __name__ == "__main__":
     # Create the U-Net model for binary segmentation
-    model = unet_model(n_classes=1, img_height=640, img_width=640, img_channels=4)
+    model = unet_model(n_classes=1, img_height=512, img_width=512, img_channels=4)
     # Compile the model with binary crossentropy loss and Adam optimizer
     model.compile(loss='binary_crossentropy', optimizer='adam')
     
