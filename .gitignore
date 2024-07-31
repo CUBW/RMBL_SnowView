@@ -178,15 +178,16 @@ cv2_resize.ipynb
 *.tif
 
 *.keras
-*.json
-data/640_640_4.pkl
-=======
 *.joblib
 *.keras
 *.pkl
 *.tif
+*.npz
+*.h5
+
 .DS_Store
-cv2_resize.ipynb
+.vscode/
+
 data/
 gabor_filters/
 TinyImages/Imagery
@@ -194,4 +195,5 @@ TinyImages/Snow_Mask
 
 # virtual env.
 snow/
-
+snow_venv/
+.venv
