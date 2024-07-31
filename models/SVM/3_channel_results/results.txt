@@ -1,0 +1,5 @@
+accuracy: 0.7387351041368118
+precision: 0.0
+recall: 0.0
+f1: 0.0
+Total time: 7267.2463285923 seconds

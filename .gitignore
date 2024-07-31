@@ -190,10 +190,10 @@ cv2_resize.ipynb
 
 data/
 gabor_filters/
+
 TinyImages/Imagery
 TinyImages/Snow_Mask
 
 # virtual env.
 snow/
 snow_venv/
-.venv
