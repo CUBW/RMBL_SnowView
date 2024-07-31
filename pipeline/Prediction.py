@@ -76,8 +76,6 @@ def full_pipeline(img_filepath, model_type, output_dir, verbose=False, tile=Fals
     # load in model
     with open(model_filepath, 'rb') as f:
         model = pickle.load(f)
-
-    
     
     # confirm image exists and is a tif
     if not os.path.exists(img_filepath):
