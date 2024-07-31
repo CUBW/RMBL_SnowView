@@ -45,9 +45,7 @@ def select_files():
 
     # Get the list of TFRecord files in the directory
     train_tfrecord_files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith('train')]
-    
     test_tfrecord_files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith('test')]
-    
     val_tfrecord_files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith('val')]
     
     return train_tfrecord_files, test_tfrecord_files, val_tfrecord_files
@@ -87,7 +85,7 @@ def create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_file
    
     lengths = [get_dataset_length(train_dataset), get_dataset_length(test_dataset), get_dataset_length(val_dataset)]
    
-    
+    print("Lengths of datasets: ", lengths) 
     return train_dataset, test_dataset, val_dataset, lengths
 
 def get_dataset_length(dataset):
@@ -103,13 +101,17 @@ if __name__ == '__main__':
     
     # Get the list of TFRecord files
     train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files() 
-    
+   
+    # print lenght of one file in the list
+    print("train file lenght: ", get_dataset_length(train_tfrecord_files[0]))
+    print("test file lenght: ", get_dataset_length(test_tfrecord_files[0]))
+    print("val file lenght: ", get_dataset_length(val_tfrecord_files[0]))
     # Create datasets for training, testing, and validation
     train_dataset, test_dataset, val_dataset, lengths = create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size)
    
-    # dataset_length = tf.data.experimental.cardinality(train_dataset).numpy()
-    # Check the cardinality
-    dataset_length = lengths[0]
-    print(f"Number of elements in train_dataset: {dataset_length}")
+    # # dataset_length = tf.data.experimental.cardinality(train_dataset).numpy()
+    # # Check the cardinality
+    # dataset_length = lengths[0]
+    # print(f"Number of elements in train_dataset: {dataset_length}")
     
     # visualize_dataset(train_dataset)

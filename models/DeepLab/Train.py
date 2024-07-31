@@ -1,7 +1,6 @@
 from .Model import DeepLabV3Plus
-from utils.Processing import split_data, Process
-
-
+from utils.recordProcessing import create_datasets, select_files
+from utils.Evaluation import save_model_config
 import json
 import random
 import datetime
@@ -54,12 +53,15 @@ def train_masks(train_dataset):
     return class_weights
 
 
-def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, epochs=100 ):
+def train_model(deeplab, train_dataset, val_dataset, date_str, dataset_info, batch_size=10, epochs=100 ):
     # Define the learning rates and optimizer
+    print("batch size: ", batch_size)
+    print("num of epochs: ", epochs)
     model_name = "DeepLab"
     start_lr = 0.001
-    end_lr = 1e-6
-    decay_steps = len(train_dataset) * 400
+    end_lr = 1e-4
+    dataset_length = dataset_info["num_train_samples"]
+    decay_steps = dataset_length * 400
 
     learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
         start_lr,
@@ -100,13 +102,18 @@ def train_model(deeplab, train_dataset, val_dataset, date_str, batch_size=10, ep
         save_best_only=True,
         save_freq='epoch',
     )]
+    
+    steps_per_epoch = dataset_info["num_train_samples"] // batch_size
+    validation_steps = dataset_info["num_val_samples"] // batch_size
 
     # Training the model with validation data
     history = model.fit(
-        train_dataset.batch(batch_size),
-        validation_data=val_dataset.batch(batch_size), 
+        train_dataset,
+        validation_data=val_dataset, 
         epochs=epochs, 
-        callbacks=callbacks
+        callbacks=callbacks,
+        steps_per_epoch=steps_per_epoch,
+        validation_steps=validation_steps
     )
 
     # Define the model name and directory for saving the final mode
@@ -155,7 +162,7 @@ if __name__ == "__main__":
             (this will be used before a script is created or not)
     
     '''
-    dateset_fileName = "640_640_4.pkl"
+    dataset_DIRName= "512_Splits_4_TFRecord"
     img_height = 640
     img_width = 640
     img_channels = 4
@@ -164,25 +171,22 @@ if __name__ == "__main__":
  
     batch_size = 10
     epochs = 1
- 
+    buffer_size = 1000
     
-    print("Processing the dataset...")
-    dataset = Process(dateset_fileName)
-    print("Splitting")
-    train_dataset, val_dataset, test_dataset = split_data(dataset)
-    # class_weights = train_masks(train_dataset)
+    train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files()
+    train_dataset, val_dataset, test_dataset, lengths = create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size)
     # print(f"Class weights: {class_weights}")
     print("Training the model...")
     deeplab = DeepLabV3Plus(n_classes=1, img_height=img_height, img_width=img_width, img_channels=img_channels)
     
     dataset_info = {
-        "dateset_fileName" : dateset_fileName,
-        "num_train_samples": len(train_dataset),
-        "num_val_samples": len(val_dataset),
-        "image_shape": (img_height, img_width, img_channels)  # Update this if image shape is different
+        "dateset_fileName" : dataset_DIRName,
+        "num_train_samples": lengths[0],
+        "num_test_samples": lengths[1],
+        "num_val_samples": lengths[2],
+        "image_shape": (img_height, img_width, img_channels)  
     }
     
-    model, history = train_model(deeplab, train_dataset, val_dataset, date_str,dataset_info, batch_size=batch_size, epochs=epochs)
-    date_str = "2024-07-19-14-18"
+    model, history = train_model(deeplab, train_dataset, val_dataset, date_str, dataset_info, batch_size=batch_size, epochs=epochs)
     from utils.Evaluation import evaluate
     evaluate(model_date = date_str, model_name = "DeepLab", num_examples=1)

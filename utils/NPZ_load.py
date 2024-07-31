@@ -84,6 +84,8 @@ def npz_to_TFRecord(FILEPATH, OUTPUT_DIR):
     # Filter out the split_indicies.txt file and take out the masks
     image_files = [f for f in all_files if not (f.endswith('split_indicies.txt') or f.endswith('masks.npz'))]
 
+    # print the length of one image file
+    print(len(image_files[3]))
     '''
         images and masks are combined in the same file
         the words will be take out in this format
@@ -105,16 +107,16 @@ def npz_to_TFRecord(FILEPATH, OUTPUT_DIR):
         
     '''
 
-    # Iterate over image_files and create TFRecord files with a progress bar
-    for idx, image_file in enumerate(tqdm(image_files, desc="Processing files")):
-        # Get the category and number from the image file name
-        category, number = image_file.split('_')[:2]
-        # Create the TFRecord file name
-        tfrecord_filename = os.path.join(OUTPUT_DIR, f'{category}_{number}.tfrecord')
-        # Create the TFRecord file
-        create_npz_to_TFRecord(image_file, image_file.replace('images', 'masks'), tfrecord_filename)
-        print(f"Created TFRecord file: {tfrecord_filename}")
-        print(f"Processed {idx + 1}/{len(image_files)} files.")
+    # # Iterate over image_files and create TFRecord files with a progress bar
+    # for idx, image_file in enumerate(tqdm(image_files, desc="Processing files")):
+    #     # Get the category and number from the image file name
+    #     category, number = image_file.split('_')[:2]
+    #     # Create the TFRecord file name
+    #     tfrecord_filename = os.path.join(OUTPUT_DIR, f'{category}_{number}.tfrecord')
+    #     # Create the TFRecord file
+    #     create_npz_to_TFRecord(image_file, image_file.replace('images', 'masks'), tfrecord_filename)
+    #     print(f"Created TFRecord file: {tfrecord_filename}")
+    #     print(f"Processed {idx + 1}/{len(image_files)} files.")
 
 if __name__ == "__main__":
     FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '512_splits_4_channel.nosync')
