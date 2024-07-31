@@ -182,3 +182,5 @@ snow/
 
 
 .vscode/
+*.npz
+*.h5
