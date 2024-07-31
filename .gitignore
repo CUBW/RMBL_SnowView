@@ -166,32 +166,34 @@ cython_debug/
 RMBL_SnowView.code-workspace
 
 # Don't want to save all of that data
+
 data/
-*.joblib
 *.pkl
-
+*.joblib
 gabor_filters/
-640_df.pkl
-*.keras
-snow_venv/
 
-#dont want to see these things in this branch
-U-Net/U-Net/2024-07-10/results/prediction_0.png
-U-Net/U-Net/2024-07-10-10-18/Model_Data/history.json
-U-Net/U-Net/2024-07-10-10-18/results/prediction_0.png
-U-Net/U-Net/2024-07-10-10-18/results/prediction_1.png
-U-Net/U-Net/2024-07-10-10-18/results/prediction_2.png
-U-Net/U-Net/2024-07-10-10-18/results/prediction_3.png
-U-Net/U-Net/2024-07-10-10-18/results/training_validation_loss_accuracy.png
-U-Net/U-Net/2024-07-10-15-18/Model_Data/history.json
-U-Net/U-Net/2024-07-10-16-07/Model_Data/history.json
-U-Net/U-Net/2024-07-10-17-25/Model_Data/history.json
-models/unet/Previous/2024-07-16-13-53/Model_Data/history.json
-models/unet/Previous/2024-07-16-16-28/Model_Data/history.json
-
+data/same_size
+cv2_resize.ipynb
+.DS_Store
 *.tif
-*.tiff
+
+*.keras
+*.joblib
+*.keras
+*.pkl
+*.tif
 *.npz
-.venv
-.vscode/
 *.h5
+
+.DS_Store
+.vscode/
+
+data/
+gabor_filters/
+TinyImages/Imagery
+TinyImages/Snow_Mask
+
+# virtual env.
+snow/
+snow_venv/
+.venv
