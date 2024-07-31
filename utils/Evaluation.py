@@ -8,7 +8,7 @@ import json
 import cv2
 import random
 
-from utils.Processing import Process, split_data 
+from utils.recordProcessing  import select_files, create_datasets
 
 
 def save_plot(fig, filename, fileDir):
@@ -52,7 +52,7 @@ def load_history(filename):
     return history_dict
 
 
-def evaluate_model(model, history, train_dataset, val_dataset, test_dataset, save_path):
+def evaluate_model(model, history, test_dataset, save_path):
     # Print type and content of history for debugging
 
     if not isinstance(history, dict):
@@ -192,7 +192,7 @@ def visualize_predictions(dataset, model, location=None, date=None, num_examples
             print(f"Prediction {i} saved in {fileDir}/{filename}")
 
 
-def evaluate(model_date, model_name, num_examples=1):
+def evaluate(model_date, model_name, test_dataset, num_examples=1):
     print(f"Evaluating model from date: {model_date} with {num_examples} examples") 
     # Use the entire model_date for referencing directories and files
 
@@ -230,10 +230,8 @@ def evaluate(model_date, model_name, num_examples=1):
     # Ensure history is loaded before proceeding
     if history is not None:
         # Load the processed dataset
-        dataset = Process()
-        train_dataset, val_dataset, test_dataset = split_data(dataset)
-        evaluate_model(model, history, train_dataset, val_dataset, test_dataset, results_path)
-        visualize_predictions(train_dataset, model , num_examples=num_examples, fileDir=results_path)
+        evaluate_model(model, history, test_dataset, results_path)
+        visualize_predictions(test_dataset, model , num_examples=num_examples, fileDir=results_path)
 
 
 if __name__ == "__main__":
@@ -247,6 +245,11 @@ if __name__ == "__main__":
     # Parse the arguments
     args = parser.parse_args()
 
+    batch_size = 20
+    buffer_size = 1000
+
+    train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files()
+    train_dataset, test_dataset, val_dataset, lengths = create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_files, batch_size, buffer_size)
     # Call the evaluate function with parsed arguments
-    evaluate(model_date=args.md, model_name= args.name, num_examples=args.n)
+    evaluate(model_date=args.md, model_name= args.name ,test_dataset=test_dataset, num_examples=args.n)
 
