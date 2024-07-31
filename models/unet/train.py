@@ -30,7 +30,7 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info, 
     print("num of epochs: ", epochs)
     model_name = "unet"
     # Define the learning rates and optimizer
-    start_lr = 0.001
+    start_lr = 0.01
     end_lr = 1e-4
     # look in dataset info for the number of samples in the training dataset
     dataset_length = dataset_info["num_train_samples"]
@@ -141,8 +141,8 @@ if __name__ == "__main__":
  
     date_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
  
-    batch_size = 10
-    epochs = 1
+    batch_size = 20
+    epochs = 20
     buffer_size = 1000
     
     train_tfrecord_files, test_tfrecord_files, val_tfrecord_files = select_files()

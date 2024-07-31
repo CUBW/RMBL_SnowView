@@ -119,6 +119,6 @@ def npz_to_TFRecord(FILEPATH, OUTPUT_DIR):
     #     print(f"Processed {idx + 1}/{len(image_files)} files.")
 
 if __name__ == "__main__":
-    FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '512_splits_4_channel.nosync')
-    OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', '512_Splits_4_TFRecord')
+    FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'data', '1024_splits_4_channel')
+    OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', '1024_splits_4_TFRecord')
     npz_to_TFRecord(FILEPATH, OUTPUT_DIR)
