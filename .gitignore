@@ -179,6 +179,6 @@ TinyImages/Snow_Mask
 
 # virtual env.
 snow/
-
+.pipeline/
 
 .vscode/
