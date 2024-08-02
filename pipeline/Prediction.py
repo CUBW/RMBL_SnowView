@@ -65,7 +65,7 @@ def full_pipeline(img_filepath, model_type, output_dir, verbose=False, tile=Fals
         None
     """
     # check model_type
-    if model_type not in ['RF', 'U-NET', 'DEEPLAB']:
+    if model_type not in ['RF', 'SVM', 'U-NET', 'DEEPLAB']:
         raise ValueError(f"Invalid model type: {model_type}")
     
     # confirm model exists
@@ -86,7 +86,7 @@ def full_pipeline(img_filepath, model_type, output_dir, verbose=False, tile=Fals
     if not tile:
 
         # preprocess image
-        if model_type == 'RF':
+        if model_type == 'RF' or model_type == 'SVM':
             img, img_meta = rf_preprocessing(img_filepath, verbose=verbose, **kwargs)
         else:
             img, img_meta = nn_preprocessing(img_filepath, **kwargs)
@@ -96,7 +96,7 @@ def full_pipeline(img_filepath, model_type, output_dir, verbose=False, tile=Fals
             raise ValueError("Image must be in GeoTIFF format")
         
         # predict with choosen model
-        if model_type == 'RF':
+        if model_type == 'RF' or model_type == 'SVM':
             # get prediciton
             pred = predict_rf(model, img, verbose=verbose)
 

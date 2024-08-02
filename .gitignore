@@ -184,3 +184,5 @@ snow/
 .vscode/
 *.npz
 *.h5
+
+*tif.aux.xml
