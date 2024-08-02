@@ -243,6 +243,64 @@ def rf_preprocessing(filepath, verbose=False, datatype='uint8', **kwargs):
 
     return img_df, img_meta
 
+def rf_preprocessing_tiled(filepath, verbose=False, datatype='uint8', **kwargs):
+    # open the image
+    img = rasterio.open(filepath)
+    img_meta = img.meta
+
+    # read the image
+    img_data = img.read()
+
+    # change any nan to 0
+    img_data = np.nan_to_num(img_data)
+
+    # fix datatypes
+    if datatype == 'uint8':
+        img_data = img_data.astype(np.uint8)
+    elif datatype == 'float32':
+        img_data = (img_data/255.0).astype(np.float32)
+    else:
+        raise ValueError('Datatype not recognized')
+    
+    # break image into tiles
+    img_tiles, tile_sizes = break_image(img_data)
+    def generator():
+        for tile in img_tiles:
+            tile = np.transpose(tile, (1,2,0))
+
+            img_df = generate_features(tile, print_gabor=False)
+
+            yield img_df
+    
+    return generator(), img_meta, tile_sizes
+
+
+def break_image(image, tile_size = 1024):
+    """
+    Breaks an image into (512, 512) sections, padding the bottom and right with black pixels.
+
+    Args:
+        image (numpy.ndarray): The input image.
+
+    Returns:
+        list: A list of (512, 512) sections of the image.
+    """
+    height, width = image.shape[1:]
+    padded_height = height + (tile_size - height % tile_size)
+    padded_width = width + (tile_size - width % tile_size)
+
+    padded_image = np.zeros((image.shape[0],padded_height, padded_width), dtype=image.dtype)
+    padded_image[:,:height, :width] = image
+
+    sections = []
+    for i in range(0, padded_height, tile_size):
+        for j in range(0, padded_width, tile_size):
+            section = padded_image[:, i:i+tile_size, j:j+tile_size]
+            sections.append(section)
+    return sections, (padded_height//tile_size, padded_width//tile_size)
+
+
 if __name__=="__main__":
     filepath = "data/2019-20/DeerCreekTrail_2019_05_22_snow.tif"
     rf_preprocessing(filepath, verbose=True)
+

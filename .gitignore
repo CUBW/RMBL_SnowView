@@ -182,3 +182,7 @@ snow/
 .pipeline/
 
 .vscode/
+*.npz
+*.h5
+
+*tif.aux.xml
