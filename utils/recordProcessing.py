@@ -50,6 +50,25 @@ def select_files():
     
     return train_tfrecord_files, test_tfrecord_files, val_tfrecord_files
 
+def select_val_files():
+    # This is the directory where the TFRecord files are stored
+    directory = os.path.join(os.path.dirname(__file__), '..', 'data', '512_Splits_4_TFRecord')
+
+
+    # Get the list of TFRecord files in the directory
+    val_tfrecord_files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith('val')]
+    
+    return val_tfrecord_files
+def select_test_files():
+    # This is the directory where the TFRecord files are stored
+    directory = os.path.join(os.path.dirname(__file__), '..', 'data', '512_Splits_4_TFRecord')
+
+
+    # Get the list of TFRecord files in the directory
+    test_tfrecord_files = [os.path.join(directory, file) for file in os.listdir(directory) if file.startswith('test')]
+    
+    return test_tfrecord_files
+
 def visualize_dataset(dataset, num_samples=5):
     # Take a batch of data from the dataset
     for images, masks in dataset.take(1):
@@ -87,6 +106,24 @@ def create_datasets(train_tfrecord_files, test_tfrecord_files, val_tfrecord_file
    
     print("Lengths of datasets: ", lengths) 
     return train_dataset, test_dataset, val_dataset, lengths
+
+def create_val_dataset(val_tfrecord_files, batch_size, buffer_size):
+    # Create datasets for training, testing, and validation
+    val_dataset = create_dataset(val_tfrecord_files, batch_size, buffer_size, training=False)
+   
+    lengths = [get_dataset_length(val_dataset)]
+   
+    print("Lengths of datasets: ", lengths) 
+    return val_dataset, lengths
+
+def create_test_dataset(test_tfrecord_files, batch_size, buffer_size):
+    # Create datasets for training, testing, and validation
+    test_dataset = create_dataset(test_tfrecord_files, batch_size, buffer_size, training=False)
+   
+    lengths = [get_dataset_length(test_dataset)]
+   
+    print("Lengths of datasets: ", lengths) 
+    return test_dataset, lengths
 
 def get_dataset_length(dataset):
     length = 0
