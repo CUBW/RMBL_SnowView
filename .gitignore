@@ -164,6 +164,7 @@ cython_debug/
 # VSCode
 .code-workspace
 RMBL_SnowView.code-workspace
+.virtual_documents/
 
 # Don't want to save all of that data
 
@@ -197,3 +198,4 @@ TinyImages/Snow_Mask
 # virtual env.
 snow/
 snow_venv/
+nn_preprocessing_env/
