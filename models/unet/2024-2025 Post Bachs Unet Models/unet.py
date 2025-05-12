@@ -28,6 +28,27 @@ def dice_coef(y_true, y_pred, smooth=1e-6):
     dice = tf.where(tf.equal(denom, 0), 1.0, (2. * intersection + smooth) / (denom + smooth))
     return dice
 
+    # Cell 2: focal loss factory
+def focal_loss(gamma=2.0, alpha=0.25):
+    """
+    Focal loss for binary segmentation.
+      FL(p_t) = -alpha * (1-p_t)^gamma * log(p_t)
+    where p_t is y_pred for y_true==1, and 1-y_pred for y_true==0.
+    """
+    def loss_fn(y_true, y_pred):
+        # Clip to prevent NaNs
+        y_pred = K.clip(y_pred, K.epsilon(), 1.0 - K.epsilon())
+        
+        # Compute p_t
+        p_t = tf.where(tf.equal(y_true, 1), y_pred, 1 - y_pred)
+        # Compute focal term
+        focal_term = K.pow(1 - p_t, gamma)
+        # Compute α-weighted log loss
+        loss = -alpha * focal_term * K.log(p_t)
+        return K.mean(loss)
+    return loss_fn
+
+
 def dice_loss(y_true, y_pred, smooth=1e-6):
     """
     Dice loss for binary segmentation. 
@@ -292,25 +313,35 @@ def train_model(unet_model, train_dataset, val_dataset, date_str, dataset_info,
     else:
         validation_steps = None  # Keras can infer this if desired
 
-    decay_steps = steps_per_epoch * epochs
-    start_lr = 1e-3
-    end_lr = 1e-4
-    learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
-        start_lr, decay_steps, end_lr, power=0.5
+    # 1) Define a CosineDecayRestarts schedule
+    initial_lr      = 1e-3
+    first_cycle_steps = steps_per_epoch * 10   # e.g. 10 epochs before first restart
+    t_mul           = 2.0    # each cycle is 2× as long as the previous
+    m_mul           = 1.0    # max lr stays the same each restart
+    alpha           = 1e-6   # lr floor as fraction of initial_lr
+
+    lr_schedule = tf.keras.optimizers.schedules.CosineDecayRestarts(
+        initial_learning_rate=initial_lr,
+        first_decay_steps=first_cycle_steps,
+        t_mul=t_mul,
+        m_mul=m_mul,
+        alpha=alpha,
     )
-    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate_fn)
-    
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+
     # Use combined_loss instead of BinaryCrossentropy.
     model = unet_model
     model.compile(
         optimizer=optimizer,
-        loss=combined_loss,
+        loss=focal_loss(gamma=2.0, alpha=0.25),
         weighted_metrics=[],
         metrics=[
             'accuracy',
             tf.keras.metrics.Precision(),
             tf.keras.metrics.Recall(),
-            dice_coef
+            dice_coef,
+            MeanMetricWrapper(focal_loss_fn, name="focal_loss")
         ]
     )
     
