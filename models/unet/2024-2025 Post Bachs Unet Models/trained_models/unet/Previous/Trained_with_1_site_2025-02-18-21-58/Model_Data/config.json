@@ -1,0 +1,47 @@
+{
+    "model_name": "unet",
+    "date": "2025-02-18-21-58",
+    "batch_size": 32,
+    "epochs": 20,
+    "learning_rate": {
+        "start_lr": 0.001,
+        "end_lr": 0.0001,
+        "decay_steps": 860,
+        "schedule": "PolynomialDecay"
+    },
+    "optimizer": "Adam",
+    "loss_function": "BinaryCrossentropy",
+    "metrics": [
+        "accuracy",
+        "precision",
+        "recall",
+        "dice_coef"
+    ],
+    "dataset": {
+        "training_sites": [
+            "DeerCreekTrail"
+        ],
+        "validation_sites": [
+            "StrandHill"
+        ],
+        "testing_sites": [
+            "VirginiaBasin"
+        ],
+        "folder_path": "C:\\Users\\jaydb\\Snowpack_Project\\Tiled_Output",
+        "num_train_samples": 2765,
+        "num_val_samples": 3148,
+        "num_test_samples": 470,
+        "image_shape": [
+            512,
+            512,
+            4
+        ]
+    },
+    "callbacks": [
+        "ModelCheckpoint",
+        "EarlyStopping",
+        "LearningRateLogger",
+        "DebugBatchStats",
+        "CometCallback"
+    ]
+}

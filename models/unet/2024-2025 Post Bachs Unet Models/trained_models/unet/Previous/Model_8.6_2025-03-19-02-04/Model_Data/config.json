@@ -1,0 +1,38 @@
+{
+    "model_name": "unet",
+    "date": "2025-03-19-02-04",
+    "batch_size": 16,
+    "epochs": 20,
+    "learning_rate": {
+        "start_lr": 0.001,
+        "end_lr": 0.0001,
+        "decay_steps": 4380,
+        "schedule": "PolynomialDecay"
+    },
+    "optimizer": "Adam",
+    "loss_function": "combined_loss (BCE + Dice Loss)",
+    "metrics": [
+        "accuracy",
+        "precision",
+        "recall",
+        "dice_coef"
+    ],
+    "dataset": {
+        "num_train_samples": 3500,
+        "num_in_sample_val_samples": 1000,
+        "num_in_sample_test_samples": 500,
+        "num_out_of_sample_test_samples": 500,
+        "image_shape": [
+            512,
+            512,
+            3
+        ]
+    },
+    "callbacks": [
+        "ModelCheckpoint",
+        "EarlyStopping",
+        "LearningRateLogger",
+        "DebugBatchStats",
+        "CometCallback"
+    ]
+}

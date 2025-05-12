@@ -1,0 +1,41 @@
+{
+    "model_name": "unet",
+    "date": "2025-02-04-12-27",
+    "batch_size": 16,
+    "epochs": 10,
+    "learning_rate": {
+        "start_lr": 0.001,
+        "end_lr": 0.0001,
+        "decay_steps": 3000,
+        "schedule": "PolynomialDecay"
+    },
+    "optimizer": "Adam",
+    "loss_function": "BinaryCrossentropy",
+    "metrics": [
+        "accuracy",
+        "precision",
+        "recall",
+        "dice_coef"
+    ],
+    "dataset": {
+        "allowed_sites": [
+            "ParadiseBasin",
+            "EastRiverTrail"
+        ],
+        "folder_path": "C:\\Users\\jaydb\\Snowpack_Project\\Tiled_Output",
+        "num_train_samples": 4800,
+        "num_val_samples": 600,
+        "num_test_samples": 600,
+        "image_shape": [
+            512,
+            512,
+            4
+        ]
+    },
+    "callbacks": [
+        "ModelCheckpoint",
+        "EarlyStopping",
+        "LearningRateLogger",
+        "CometCallback"
+    ]
+}

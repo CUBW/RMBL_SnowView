@@ -1,0 +1,1 @@
+{"accuracy": [0.9483403563499451, 0.9629790186882019], "dice_coef": [NaN, NaN], "loss": [NaN, NaN], "precision": [0.14817972481250763, 0.0], "recall": [0.08326984941959381, 0.0], "val_accuracy": [0.9660248756408691, 0.9660248756408691], "val_dice_coef": [NaN, NaN], "val_loss": [NaN, NaN], "val_precision": [0.0, 0.0], "val_recall": [0.0, 0.0]}

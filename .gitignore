@@ -77,6 +77,10 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+# ignore that monster notebook
+image_processing/2024-2025 Post Bach Preprocessing/Analyze_and_Clean_Tiles.ipynb
+
+
 
 # IPython
 profile_default/
